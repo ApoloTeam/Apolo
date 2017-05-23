@@ -79,3 +79,5 @@ class Get:
 if __name__ == "__main__":
     fzb = Get('600100', 'fzb', '2015', '2016')
     fzb.operation()
+    lrb = Get('600100', 'lrb', '2015', '2016')
+    lrb.operation()
