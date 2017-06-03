@@ -8,12 +8,12 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
 import pandas as pd
+# from collections import Iterable
 from get_data_from_Tushare import *
 
 
 class Get:
     def __init__(self, stock_id, sheet, from_year, to_year):
-        # self.cursor = cursor
         self.base_url = "http://www.cninfo.com.cn/cninfo-new/index#"
         self.data_path = 'G:\\Program\Projects\Apolo\data'
         # self.data_path = './data'
@@ -39,7 +39,7 @@ class Get:
         cursor.implicitly_wait(30)  # 隐式等待
         return cursor
 
-    def download_3_sheet3(self):
+    def operation_script(self):
         cursor = self.start_chrome()
         cursor.get(self.base_url)
         cursor.find_element_by_link_text(u"个股财务数据").click()
@@ -67,69 +67,57 @@ class Get:
         # cursor.implicitly_wait(5)
 
     def action(self):
-        # get_stock_basics()
         self.create_folder_stock_id()
-        self.download_3_sheet3()
-        # self.input()
+        self.operation_script()
 
 
-def get_stock_id(date):
-    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk'))
-    sm = sm[(sm['timeToMarket'] < date)]
-    sm = sm.sort_values(by=['code'], ascending=True)
-    sm = sm['code'].tolist()
-    print(sm[1])
+def filter_stock_id(date):
+    stock_list = pd.DataFrame(pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk'))
+    stock_list = stock_list[(stock_list['timeToMarket'] < date)]
+    stock_list = stock_list.sort_values(by=['code'], ascending=True)
+    stock_list = stock_list['code'].tolist()
+    return stock_list
 
-    # stock_basics = pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk')
-    # print(sm[['code'][0]][1])
-    # print(type(stock_basics[['code'][0]]))
-    # i = sm[['code'][0]][1]
-    stock = Get(str(i), 'fzb', '2015', '2016')
+
+def download(n):
+    stock = Get(str(n).zfill(6), 'fzb', '2015', '2016')  # zfill is to fill up 0 to the left
     stock.action()
 
 
 def control():
-    fzb = Get('600100', 'fzb', '2015', '2016')
-    fzb.action()
-    # lrb = Get('600100', 'lrb', '2015', '2016')
-    # lrb.operation()
-#
-#         # def is_element_present(self, how, what):
-#         #     try:
-#         #         self.driver.find_element(by=how, value=what)
-#         #     except NoSuchElementException as e: return False
-#         #     return True
-#         #
-#         # def is_alert_present(self):
-#         #     try:
-#         #         self.driver.switch_to.alert()
-#         #     except NoAlertPresentException as e: return False
-#         #     return True
-#         #
-#         # def close_alert_and_get_its_text(self):
-#         #     try:
-#         #         alert = self.driver.switch_to.alert()
-#         #         alert_text = alert.text
-#         #         if self.accept_next_alert:
-#         #             alert.accept()
-#         #         else:
-#         #             alert.dismiss()
-#         #         return alert_text
-#         #
-#         #     finally:
-#         #         self.accept_next_alert = True
-#         #
-#         # def tearDown(self):
-#         #     self.driver.quit()
-#         #     self.assertEqual([], self.verificationErrors)
-#
+    stock_list = filter_stock_id(20120101)
+    itr_stock_list = iter(stock_list)
+    for stock_id in itr_stock_list:
+        download(stock_id)
+
+        # def is_element_present(self, how, what):
+        #     try:
+        #         self.driver.find_element(by=how, value=what)
+        #     except NoSuchElementException as e: return False
+        #     return True
+        #
+        # def is_alert_present(self):
+        #     try:
+        #         self.driver.switch_to.alert()
+        #     except NoAlertPresentException as e: return False
+        #     return True
+        #
+        # def close_alert_and_get_its_text(self):
+        #     try:
+        #         alert = self.driver.switch_to.alert()
+        #         alert_text = alert.text
+        #         if self.accept_next_alert:
+        #             alert.accept()
+        #         else:
+        #             alert.dismiss()
+        #         return alert_text
+        #
+        #     finally:
+        #         self.accept_next_alert = True
+        #
+        # def tearDown(self):
+        #     self.driver.quit()
+        #     self.assertEqual([], self.verificationErrors)
+
 if __name__ == "__main__":
-    # start_chrome()
-    # cursor = start_chrome()
-    # fzb = Get('600100', 'fzb', '2015', '2016')
-    # fzb.operation()
-    # # fzb.start_chrome()
-    # lrb = Get('600100', 'lrb', '2015', '2016')
-    # lrb.operation()
-    # control()
-    get_stock_id(20120101)
+    control()
