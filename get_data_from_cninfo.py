@@ -7,17 +7,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
-
-
-# def start_chrome():
-#     data_path = 'G:\\Program\Projects\Apolo\data'
-#     options = webdriver.ChromeOptions()
-#     prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': data_path}
-#     options.add_experimental_option('prefs', prefs)
-#     chrome_driver = "C:\Program Files\Google\Chrome\Application\chromedriver.exe"
-#     os.environ["webdriver.chrome.driver"] = chrome_driver
-#     cursor = webdriver.Chrome(executable_path=chrome_driver, chrome_options=options)
-#     return cursor
+import pandas as pd
+from get_data_from_Tushare import *
 
 
 class Get:
@@ -48,24 +39,6 @@ class Get:
         cursor.implicitly_wait(30)  # 隐式等待
         return cursor
 
-    # def download_sheet(self):
-    #     cursor = self.start_chrome()
-    #     cursor.implicitly_wait(30)  # 隐式等待
-    #     cursor.get(self.base_url)
-    #     cursor.find_element_by_link_text(u"个股财务数据").click()
-    #     cursor.find_element_by_id("index_cw_input_obj").clear()
-    #     cursor.find_element_by_id("index_cw_input_obj").send_keys(self.stock_id)
-    #     cursor.find_element_by_xpath('//*[@id="index_cw_stock_list"]/li[2]/a').click()
-    #
-    #     sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
-    #     sheet_type.select_by_value(self.sheet)
-    #
-    #     from_date = Select(cursor.find_element_by_id("cw_start_select_obj"))
-    #     from_date.select_by_value(self.from_year)
-    #     end_date = Select(cursor.find_element_by_id("cw_end_select_obj"))
-    #     end_date.select_by_value(self.to_year)
-    #     cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-
     def download_3_sheet3(self):
         cursor = self.start_chrome()
         cursor.get(self.base_url)
@@ -94,9 +67,25 @@ class Get:
         # cursor.implicitly_wait(5)
 
     def action(self):
+        # get_stock_basics()
         self.create_folder_stock_id()
         self.download_3_sheet3()
         # self.input()
+
+
+def get_stock_id(date):
+    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk'))
+    sm = sm[(sm['timeToMarket'] < date)]
+    sm = sm.sort_values(by=['code'], ascending=True)
+    sm = sm['code'].tolist()
+    print(sm[1])
+
+    # stock_basics = pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk')
+    # print(sm[['code'][0]][1])
+    # print(type(stock_basics[['code'][0]]))
+    # i = sm[['code'][0]][1]
+    stock = Get(str(i), 'fzb', '2015', '2016')
+    stock.action()
 
 
 def control():
@@ -142,4 +131,5 @@ if __name__ == "__main__":
     # # fzb.start_chrome()
     # lrb = Get('600100', 'lrb', '2015', '2016')
     # lrb.operation()
-    control()
+    # control()
+    get_stock_id(20120101)
