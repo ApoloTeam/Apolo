@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
 import pandas as pd
-# from collections import Iterable
+import zipfile as zip
 from get_data_from_Tushare import *
 
 
@@ -53,23 +53,42 @@ class GetFromCninfo:
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("fzb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-        # cursor.implicitly_wait(5)
+        # cursor.implicitly_wait
+        time.sleep(1)
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("llb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
         # cursor.implicitly_wait(5)
+        time.sleep(1)
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("lrb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-        cursor.implicitly_wait(5)
+        # cursor.implicitly_wait(5)
+        time.sleep(1)
+        cursor.close()
 
     def download(self, stock_id, from_year, to_year):
         self.create_folder_stock_id(stock_id)
         self.operation_script(stock_id, from_year, to_year)
 
+    def unzip(self, stock_id):
+        stock_path = os.path.join(self.data_path, stock_id)
+        file_list = os.listdir(stock_path)
+        for file_name in file_list:
+            if os.path.splitext(file_name)[1] == '.zip':
+                # print(file_name)
+                file_zip = zip.ZipFile(os.path.join(stock_path, file_name), 'r')
+                # print(file_zip.read(file_zip.namelist()[0]))
+                for file in file_zip.namelist():
+                    file_zip.extract(file, stock_path)
+                file_zip.close()
+
 
 class DownloadOneStock(GetFromCninfo):
-    pass
+    def download_unzip(self, stock_id, from_year, to_year):
+        self.download(stock_id, from_year, to_year)
+        time.sleep(2)
+        self.unzip(stock_id)
 
 
 class DownloadStocks(GetFromCninfo):
@@ -86,7 +105,8 @@ class DownloadStocks(GetFromCninfo):
         itr_stock_list = iter(stock_list)
         for stock_id in itr_stock_list:
             self.download(str(stock_id).zfill(6), from_year, to_year)
-
+            time.sleep(1)
+            self.unzip(str(stock_id).zfill(6))
 
         # def is_element_present(self, how, what):
         #     try:
@@ -120,6 +140,6 @@ class DownloadStocks(GetFromCninfo):
 if __name__ == "__main__":
     # control()
     # one_stock = DownloadOneStock()
-    # one_stock.download('000001', '2015', '2016')
+    # one_stock.download_unzip('000001', '2015', '2016')
     multi_stocks = DownloadStocks()
     multi_stocks.download_stock_list('2015', '2016', 20120101)
