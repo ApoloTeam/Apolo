@@ -72,6 +72,14 @@ def get_cashflow_data(year, quarter):
     print('\n%s year %s quarter cashflow data report downloaded.' % (str(year), str(quarter)))
 
 
+def get_sse50(year, quarter):
+    if os.path.exists('./data/sse50') is False:
+        os.makedirs('./data/sse50')
+    df = ts.get_sz50s()
+    df.to_csv('./data/sse50/%s_%s.csv' % (str(year), str(quarter)))
+    print('\n%s year %s quarter sse50 downloaded.' % (str(year), str(quarter)))
+
+
 # 获取某年某季度的所有数据
 def get_data(year, quarter):
     get_stock_basics()
@@ -84,10 +92,12 @@ def get_data(year, quarter):
 
 
 def stock_master(date):
-    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170430.csv', encoding='gbk'))
+    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170525.csv', encoding='gbk'))
     sm = sm[(sm['timeToMarket'] < date)]
     sm = sm.sort_values(by=['code'], ascending=True)
     print(sm.head(10))
+    print(type(sm['code']))
+    print(sm['code'])
 
     # print(sm.head(10))
 
@@ -97,7 +107,8 @@ if __name__ == '__main__':
     # get_report_data(2016, 2)
     # get_report_data(2016, 3)
     # get_report_data(2016, 4)
+    # get_stock_basics()
     # stock_master(20120101)
-    get_stock_basics()
-    print('\nTesting')
+    # print('\nTesting')
+    get_sse50(2017, 2)
 

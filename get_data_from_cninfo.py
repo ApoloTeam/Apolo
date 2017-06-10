@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
 import pandas as pd
 import zipfile as zip
-from get_data_from_Tushare import *
+import get_data_from_Tushare
 
 
 class GetFromCninfo:
@@ -53,17 +53,14 @@ class GetFromCninfo:
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("fzb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-        # cursor.implicitly_wait
         time.sleep(1)
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("llb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-        # cursor.implicitly_wait(5)
         time.sleep(1)
         sheet_type = Select(cursor.find_element_by_id("index_select_type_obj"))
         sheet_type.select_by_value("lrb")
         cursor.find_element_by_css_selector("#con-f-2 > div.index-search > div.down_button_row > button.index_down_button").click()
-        # cursor.implicitly_wait(5)
         time.sleep(1)
         cursor.close()
 
@@ -76,9 +73,7 @@ class GetFromCninfo:
         file_list = os.listdir(stock_path)
         for file_name in file_list:
             if os.path.splitext(file_name)[1] == '.zip':
-                # print(file_name)
                 file_zip = zip.ZipFile(os.path.join(stock_path, file_name), 'r')
-                # print(file_zip.read(file_zip.namelist()[0]))
                 for file in file_zip.namelist():
                     file_zip.extract(file, stock_path)
                 file_zip.close()
@@ -86,27 +81,43 @@ class GetFromCninfo:
 
 class DownloadOneStock(GetFromCninfo):
     def download_unzip(self, stock_id, from_year, to_year):
-        self.download(stock_id, from_year, to_year)
-        time.sleep(2)
-        self.unzip(stock_id)
+        super(DownloadOneStock, self).download(stock_id, from_year, to_year)
+        time.sleep(1)
+        super(DownloadOneStock, self).unzip(stock_id)
 
 
-class DownloadStocks(GetFromCninfo):
+class DownloadMultiStocks(GetFromCninfo):
     @staticmethod
-    def filter_stock_list(date):
-        stock_list = pd.DataFrame(pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk'))
+    def get_stock_list(path_stock_list):
+        stock_list = pd.DataFrame(pd.read_csv(path_stock_list, encoding='gbk'))
+        stock_list = stock_list['code'].tolist()
+        return stock_list
+
+    def download_unzip(self, path, from_year, to_year):
+        stock_list = self.get_stock_list(path)
+        for stock_id in iter(stock_list):
+            super(DownloadMultiStocks, self).download(str(stock_id).zfill(6), from_year, to_year)
+            time.sleep(1)
+            super(DownloadMultiStocks, self).unzip(str(stock_id).zfill(6))
+
+
+class DownloadStocksByFiltering(DownloadMultiStocks):
+    @staticmethod
+    def filter_stock_list(path, date):
+        stock_list = pd.DataFrame(pd.read_csv(path, encoding='gbk'))
         stock_list = stock_list[(stock_list['timeToMarket'] < date)]
         stock_list = stock_list.sort_values(by=['code'], ascending=True)
         stock_list = stock_list['code'].tolist()
         return stock_list
 
-    def download_stock_list(self, from_year, to_year, date):
-        stock_list = self.filter_stock_list(date)
+    # @overrides
+    def download_unzip(self, path, from_year, to_year, date):
+        stock_list = self.filter_stock_list(path, date)
         itr_stock_list = iter(stock_list)
         for stock_id in itr_stock_list:
-            self.download(str(stock_id).zfill(6), from_year, to_year)
+            super(DownloadMultiStocks, self).download(str(stock_id).zfill(6), from_year, to_year)
             time.sleep(1)
-            self.unzip(str(stock_id).zfill(6))
+            super(DownloadMultiStocks, self).unzip(str(stock_id).zfill(6))
 
         # def is_element_present(self, how, what):
         #     try:
@@ -138,8 +149,9 @@ class DownloadStocks(GetFromCninfo):
         #     self.assertEqual([], self.verificationErrors)
 
 if __name__ == "__main__":
-    # control()
     # one_stock = DownloadOneStock()
-    # one_stock.download_unzip('000001', '2015', '2016')
-    multi_stocks = DownloadStocks()
-    multi_stocks.download_stock_list('2015', '2016', 20120101)
+    # one_stock.download_unzip('600000', '2015', '2016')
+    multi_stocks = DownloadStocksByFiltering()
+    multi_stocks.download_unzip('./data/stock_basics/20170601.csv', '2015', '2016', 20120101)
+    # sse50 = DownloadMultiStocks()
+    # sse50.download_unzip('./data/sse50/2017_2.csv', '2015', '2016')
