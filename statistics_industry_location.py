@@ -37,7 +37,7 @@ print(type(location))
 
 # plt.show()
 # stock_list.plot.pie(subplots=True, table=True, figsize=(6, 6), title='abc')
-#     all_price = pd.DataFrame(count_price, index=None)
+# all_price = pd.DataFrame(count_price, index=None)
 # plt_price.plot.bar()  # plt_price.plot(kind='bar')
 # all_price.plot.pie(subplots=True, table=True, figsize=(6, 6),title='abc', legend=True, labels=['<1000', '>=1000'])
 # figsize is the size of shape

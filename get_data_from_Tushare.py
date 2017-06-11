@@ -109,6 +109,5 @@ if __name__ == '__main__':
     # get_report_data(2016, 4)
     # get_stock_basics()
     # stock_master(20120101)
-    # print('\nTesting')
     get_sse50(2017, 2)
 
