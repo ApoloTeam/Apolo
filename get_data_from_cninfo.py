@@ -9,7 +9,6 @@ from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
 import pandas as pd
 import zipfile as zip
-import manage_data_from_Tushare
 
 
 class GetFromCninfo:

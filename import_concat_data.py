@@ -35,5 +35,5 @@ if __name__ == "__main__":
     # concat_result.import_concat_stock_data("000001", 'lrb', 2015, 2016)
     multi_stocks = DownloadMultiStocks()
     stock_list = multi_stocks.get_stock_list('./data/stock_basics/20170601.csv')
-    concat_result
+
     print(stock_list)
