@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, os
 import pandas as pd
 import zipfile as zip
-import get_data_from_Tushare
+import manage_data_from_Tushare
 
 
 class GetFromCninfo:
@@ -110,7 +110,6 @@ class DownloadStocksByFiltering(DownloadMultiStocks):
         stock_list = stock_list['code'].tolist()
         return stock_list
 
-    # @overrides
     def download_unzip(self, path, from_year, to_year, date):
         stock_list = self.filter_stock_list(path, date)
         itr_stock_list = iter(stock_list)
@@ -151,7 +150,7 @@ class DownloadStocksByFiltering(DownloadMultiStocks):
 if __name__ == "__main__":
     # one_stock = DownloadOneStock()
     # one_stock.download_unzip('600000', '2015', '2016')
-    multi_stocks = DownloadStocksByFiltering()
-    multi_stocks.download_unzip('./data/stock_basics/20170601.csv', '2015', '2016', 20120101)
-    # sse50 = DownloadMultiStocks()
-    # sse50.download_unzip('./data/sse50/2017_2.csv', '2015', '2016')
+    # multi_stocks = DownloadStocksByFiltering()
+    # multi_stocks.download_unzip('./data/stock_basics/20170601.csv', '2015', '2016', 20120101)
+    sse50 = DownloadMultiStocks()
+    sse50.download_unzip('./data/sse50/2017_2_Filtered.csv', '2015', '2016')
