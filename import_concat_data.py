@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import glob
 from get_data_from_cninfo import DownloadMultiStocks
-from HelloWorld import Hello
 
 
 class ImportConcat:
@@ -17,23 +16,18 @@ class ImportConcat:
             fzb[y] = pd.DataFrame(pd.read_csv(file[0], encoding='gbk'))
         result = pd.concat(fzb)
         result.to_csv(os.path.join(self.data_path, str(stock_id).zfill(6),'./%s_%d_%d.csv' % (sheet, from_year, to_year)))
-        print('# %s sheet concatenated and saved. ' % sheet)
-        # print(result)
+        print('# %s %s sheet concatenated and saved. ' % (stock_id, sheet))
 
     @staticmethod
-    def import_concat_by_list(path_stock_list):
+    def import_concat_by_list(path_stock_list, sheet, from_year, to_year):
         stocks = DownloadMultiStocks()
         list_stock = stocks.get_stock_list(path_stock_list)
         for s in iter(list_stock):
-            concat_result.import_concat_stock_data(str(s).zfill(6), 'fzb')
+            concat_result.import_concat_stock_data(str(s).zfill(6), sheet, from_year, to_year)
 
 
 if __name__ == "__main__":
     concat_result = ImportConcat()
-    # concat_result.import_concat_stock_data("000001", 'fzb', 2015, 2016)
-    # concat_result.import_concat_stock_data("000001", 'llb', 2015, 2016)
-    # concat_result.import_concat_stock_data("000001", 'lrb', 2015, 2016)
-    multi_stocks = DownloadMultiStocks()
-    stock_list = multi_stocks.get_stock_list('./data/stock_basics/20170601.csv')
-
-    print(stock_list)
+    # concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'fzb', 2015, 2016)
+    concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'llb', 2015, 2016)
+    # concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'lrb', 2015, 2016)
