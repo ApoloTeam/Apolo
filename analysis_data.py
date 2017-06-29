@@ -7,18 +7,47 @@ import numpy as np, matplotlib.pyplot as plt, scipy
 class Ratios:
     def get_field_data(self, path, field):
         result = pd.DataFrame(pd.read_csv(path, encoding='gbk'))
-        result = result[['Unnamed: 0','Unnamed: 1', field]]
+        result.rename(columns={'Unnamed: 0': 'year','Unnamed: 1': 'quarter'},inplace=True)
+        result = result[['year','quarter', field]]
         return result
 
-    def liquidity_ratio(self, path, curr_assets, curr_liability):
-        curr_assets = self.get_field_data(path, curr_assets)
-        curr_liabilities = self.get_field_data(path, curr_liability)
-        print(curr_liabilities[['Unnamed: 0']])
-        merged_result = pd.merge(curr_assets, curr_liabilities, on=['Unnamed: 0','Unnamed: 1'], how='inner')
-        merged_result.insert(4,'liquidity_ratio', merged_result.loc[:,('流动资产合计')] / merged_result.loc[:,('流动负债合计')])
-        merged_result = pd.DataFrame(merged_result)
-        print(merged_result.sort_values(by=['Unnamed: 1']))
+    def display_pivot_table(self, dataset, column):
+        dataframe = pd.DataFrame(dataset)
+        dataframe_q_y = dataframe.pivot(index='year',columns='quarter', values=column)
+        dataframe_y_q = dataframe.pivot(index='quarter',columns='year', values=column)
+        print(dataframe_q_y)
+        print(dataframe_q_y.pct_change())
+        print(dataframe_y_q)
+        print(dataframe_y_q.pct_change())
 
+    def liquidity_ratio(self, path, curr_asset, curr_liability):
+        curr_assets = self.get_field_data(path, curr_asset)
+        curr_liabilities = self.get_field_data(path, curr_liability)
+        merged_result = pd.merge(curr_assets, curr_liabilities, on=['year','quarter'], how='inner')
+        merged_result.insert(4,'liquidity_ratio', merged_result.loc[:,('流动资产合计')] / \
+                             merged_result.loc[:,('流动负债合计')])
+        merged_result = pd.DataFrame(merged_result)
+        print(self.display_pivot_table(merged_result, 'liquidity_ratio'))
+
+
+    def quick_ratio(self, path, curr_asset, curr_liability, inventory):
+        curr_assets = self.get_field_data(path, curr_asset)
+        curr_liabilities = self.get_field_data(path, curr_liability)
+        inventories = self.get_field_data(path, inventory)
+
+        merged_result = pd.merge(curr_assets, curr_liabilities, on=['year','quarter'], how='inner')
+        merged_result = pd.merge(merged_result, inventories, on=['year','quarter'], how='inner')
+        print(merged_result)
+        merged_result.insert(5,'quick_ratio', (merged_result.loc[:,('流动资产合计')] - merged_result.loc[:,('存货')]) / \
+                             merged_result.loc[:,('流动负债合计')])
+        print(self.display_pivot_table(merged_result, 'quick_ratio'))
+
+    def cash_ratio(self, path, cash, curr_liability):
+        curr_liabilities = self.get_field_data(path, curr_liability)
+        cashes = self.get_field_data(path, cash)
+        merged_result = pd.merge(cashes, curr_liabilities, on=['year','quarter'], how='inner')
+        merged_result.insert(4,'cash_ratio', (merged_result.loc[:,('货币资金（元）')]  / merged_result.loc[:,('流动负债合计')]))
+        print(self.display_pivot_table(merged_result, 'cash_ratio'))
 
     def plot_total_asset(self, path, assets):
         result = self.get_field_data(path, assets)
@@ -74,4 +103,6 @@ if __name__=='__main__':
     # plot_profit_ratio()
     # roe()
     test = Ratios()
-    test.liquidity_ratio('./data/000338/fzb_2014_2016.csv','流动资产合计','流动负债合计')
+    # test.liquidity_ratio('./data/000338/fzb_2014_2016.csv','流动资产合计','流动负债合计')
+    # test.quick_ratio('./data/000338/fzb_2014_2016.csv','流动资产合计','流动负债合计', '存货')
+    test.cash_ratio('./data/000338/fzb_2014_2016.csv','货币资金（元）','流动负债合计')
