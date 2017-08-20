@@ -147,9 +147,9 @@ class DownloadStocksByFiltering(DownloadMultiStocks):
         #     self.assertEqual([], self.verificationErrors)
 
 if __name__ == "__main__":
-    # one_stock = DownloadOneStock()
-    # one_stock.download_unzip('600000', '2015', '2016')
+    one_stock = DownloadOneStock()
+    one_stock.download_unzip('000338', '2014', '2016')
     # multi_stocks = DownloadStocksByFiltering()
     # multi_stocks.download_unzip('./data/stock_basics/20170601.csv', '2015', '2016', 20120101)
-    sse50 = DownloadMultiStocks()
-    sse50.download_unzip('./data/sse50/2017_2_Filtered.csv', '2015', '2016')
+    # sse50 = DownloadMultiStocks()
+    # sse50.download_unzip('./data/sse50/2017_2_Filtered.csv', '2015', '2016')

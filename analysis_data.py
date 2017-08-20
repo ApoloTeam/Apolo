@@ -4,7 +4,10 @@ import os
 import glob
 import csv
 import numpy as np, matplotlib.pyplot as plt, scipy
-
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+xmajorLocator   = MultipleLocator(1) #将x主刻度标签设置为20的倍数
+xmajorFormatter = FormatStrFormatter('%d') #设置x轴标签文本的格式
+xminorLocator   = MultipleLocator(1) #将x轴次刻度标签设置为5的倍数
 
 class Ratios:
     def convert_billion(self, x):
@@ -207,36 +210,69 @@ class Ratios:
         print(combined_result)
 
 
-    def plot(self):
-        size = 2014
-        t = 3
+    def plot_cash_flow(self):
+        plt.style.use(u'ggplot')
+        # xmajorLocator   = MultipleLocator(1) #将x主刻度标签设置为20的倍数
+        # xminorLocator   = MultipleLocator(5) #将x轴次刻度标签设置为5的倍数
+        # plt.style.avaiable
+        # [u'dark_background', u'bmh', u'grayscale', u'ggplot', u'fivethirtyeight']
         result = self.net_cash_flow_ratio()
         oper = result[['year','oper']]
         inv = result[['year','inv']]
         fund = result[['year','fund']]
-        oper = oper.iloc[:, 1]
-        inv = inv.iloc[:, 1]
-        fund = fund.iloc[:, 1]
-        date_index = np.arange(size,2017, step=1)
-        array_oper = []
-        array_inv = []
-        array_fund = []
-        for year in np.arange(0,3):
-            array_oper.append(oper.iloc[year])
-            array_inv.append(inv.iloc[year])
-            array_fund.append(fund.iloc[year])
+        ttl = result[['year','ttl']]
+        cash_flow = result[['cash_flow']]
+        oper = pd.Series.tolist(oper.iloc[:, 1])
+        inv = pd.Series.tolist(inv.iloc[:, 1])
+        fund = pd.Series.tolist(fund.iloc[:, 1])
+        ttl = pd.Series.tolist(ttl.iloc[:, 1])
+        cash_flow = pd.Series.tolist(cash_flow.iloc[:,0])
+        year = result[['year']]
+        year_index = year.iloc[:,0]
 
-        oper = pd.Series(data=array_oper, index=date_index)
-        inv = pd.Series(data=array_inv, index=date_index)
-        fund = pd.Series(data=array_fund, index=date_index)
-        print(result[['year','oper','inv','fund', 'ttl', 'cash_flow']])
-        plt.bar(oper.index, array_oper, label='oper')
-        plt.bar(inv.index, array_inv, bottom=array_oper, label='inv')
-        plt.bar(fund.index, array_fund, bottom=array_inv, label='fund')
-        plt.legend()
+        oper = pd.Series(data=oper, index=year_index)
+        inv = pd.Series(data=inv, index=year_index)
+        fund = pd.Series(data=fund, index=year_index)
+        ttl = pd.Series(data=ttl, index=year_index)
+        cash_flow = pd.Series(data=cash_flow, index=year_index)
+        # plt.bar(oper.index, oper, label='oper')
+        # plt.bar(inv.index, inv, bottom=oper, label='inv')
+        # plt.bar(fund.index, fund, bottom=inv, label='fund')
+        fig = plt.figure(figsize=(7,7))  # 指定matplotlib输出图片的尺寸
+
+        ax_oper = fig.add_subplot(321)  #row, column,location
+        ax_oper.xaxis.set_major_locator(xmajorLocator)
+        ax_oper.xaxis.set_major_formatter(xmajorFormatter)
+        # ax_oper.xaxis.set_minor_locator(xminorLocator)
+        ax_oper.xaxis.grid(True, which='major') #x坐标轴的网格使用主刻度
+
+        ax_inv = fig.add_subplot(323)
+        ax_fund = fig.add_subplot(325)
+        ax_ttl = fig.add_subplot(322)
+        # ax_cash_flow = fig.add_subplot(313)
+        ax_oper.set_title('oper')
+        ax_oper.plot(oper.index, oper, '--',label='oper', color='g',alpha=0.5)
+        ax_inv.set_title('inv')
+        ax_inv.bar(inv.index, inv,label='inv', color='r', alpha=0.5, width=0.35)
+        ax_fund.set_title('fund')
+        ax_fund.bar(fund.index, fund,label='fund', color='b', alpha=0.5, width=0.35)
+        ax_ttl.set_title('ttl')
+        ax_ttl.bar(ttl.index, ttl,label='ttl', color='b', alpha=0.5, width=0.35)
+        # ax_cash_flow.set_title('cash_flow')
+        # rects_cash_flow = ax_cash_flow.bar(cash_flow.index, cash_flow,label='ttl', color='y', alpha=0.5, width=0.35)
+        # plt.legend()
+        plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, hspace=0.5, wspace=0.5)
+
+        def autolabel(ax, rects):
+            for rect in rects:
+                height = rect.get_height()
+                ax.text(rect.get_x() + rect.get_width()/2., 1, #1.05*height,
+                        '%d' % int(height),
+                        ha='center', va='bottom')
+
+        # autolabel(ax_cash_flow, rects_cash_flow)
+
         plt.show()
-
-
 
 def roa():
     ttl_asset = pd.DataFrame(pd.read_csv('./data/000338/fzb_2014_2016.csv', encoding='gbk'))
@@ -276,5 +312,5 @@ if __name__=='__main__':
     # test.net_cash_flow_by_fundraising_activities('./data/000338/llb_2014_2016.csv')
     # test.net_profit('./data/000338/lrb_2014_2016.csv')
     # test.net_cash_flow('./data/000338/llb_2014_2016.csv')
-    test.plot()
+    test.plot_cash_flow()
     # test.net_cash_flow_ratio()
