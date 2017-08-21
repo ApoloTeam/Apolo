@@ -5,8 +5,9 @@ import pandas as pd
 import numpy as np
 import pymysql
 from lib.connect_database import connect_server
-# from lib.connect_database import create_engine
+from lib.connect_database import connect_engine
 from sqlalchemy import create_engine
+
 
 print('version: ' + ts.__version__)
 now = datetime.datetime.now()
@@ -16,21 +17,16 @@ REPORT_DATA_DIR = os.path.join(DATA_DIR, 'report_data')
 PROFIT_DATA_DIR = os.path.join(DATA_DIR, 'profit_data')
 
 
-def connect_engine():
-    engine = create_engine('mysql+pymysql://york:4466@localhost/apolo?charset=utf8')
-    return engine
-
-
 # 获取沪深上市公司基本情况
 def get_stock_basics():
     # if folder doest exists, then create.
     if os.path.exists(STOCK_BASICS_DIR) is False:
         os.makedirs(STOCK_BASICS_DIR)
     df = ts.get_stock_basics()
+    df['create_date']='{yyyy}{mm}{dd}'.format(yyyy=str(now.year),mm=str(now.strftime('%m')), dd=str(now.strftime('%d')))
     # df.to_csv(os.path.join(STOCK_BASICS_DIR,'%s%s%s.csv' % (str(now.year), str(now.strftime('%m')), str(now.strftime('%d')))))
     engine = connect_engine()
-    print(type(df))
-    df.to_sql('stock_basics', engine, if_exists='replace', index=False)
+    df.to_sql('stock_basics', engine, if_exists='append', index=True)
     print('Stock basics downloaded.')
 
 
@@ -40,7 +36,7 @@ def get_report_data(year, quarter):
         os.makedirs(REPORT_DATA_DIR)
     df = ts.get_report_data(year, quarter)
     # df.to_csv(os.path.join(REPORT_DATA_DIR, '%s_%s.csv' % (str(year), str(quarter))))
-    # engine = connect_engine()
+    engine = connect_engine()
     df.to_sql('report_data', engine)
 
     print('\n%s year %s quarter report data report downloaded.' % (str(year), str(quarter)))
