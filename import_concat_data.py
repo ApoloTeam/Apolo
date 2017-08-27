@@ -1,3 +1,7 @@
+'''
+Description: For cninfo, to concat the result within data range by specific fund or list of fund.
+'''
+
 import pandas as pd
 import os
 import glob
@@ -29,5 +33,8 @@ class ImportConcat:
 if __name__ == "__main__":
     concat_result = ImportConcat()
     # concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'fzb', 2015, 2016)
-    concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'llb', 2015, 2016)
+    # concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'llb', 2015, 2016)
     # concat_result.import_concat_by_list('./data/sse50/2017_2_Filtered.csv', 'lrb', 2015, 2016)
+    concat_result.import_concat_stock_data('000338','fzb',2014,2016)
+    concat_result.import_concat_stock_data('000338','llb',2014,2016)
+    concat_result.import_concat_stock_data('000338','lrb',2014,2016)
