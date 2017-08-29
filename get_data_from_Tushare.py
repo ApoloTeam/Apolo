@@ -59,7 +59,11 @@ def get_profit_data(year, quarter):
     if os.path.exists(PROFIT_DATA_DIR) is False:
         os.makedirs(PROFIT_DATA_DIR)
     df = ts.get_profit_data(year, quarter)
-    df.to_csv(os.path.join(PROFIT_DATA_DIR, './data/profit_data/%s_%s.csv' % (str(year), str(quarter))))
+    df['report_y_q'] = int('{yyyy}{q}'.format(yyyy=year, q=quarter))
+    df.to_csv(os.path.join(PROFIT_DATA_DIR, '%s_%s.csv' % (str(year), str(quarter))))
+    engine = connect_engine()
+    pd.DataFrame.to_sql(df, 'profit_data', engine, if_exists='append', index=False)
+
     print('\n%s year %s quarter profit data report downloaded.' % (str(year), str(quarter)))
 
 
@@ -112,9 +116,10 @@ def get_industry_classified():
 if __name__ == '__main__':
     # get_sse50(2017, 2)
     # filter_stock_list_sse50(20120101)
+    get_profit_data(2013,1)
     # get_profit_data_range(2014,2017)
     # get_report_data(2013,1)
-    get_report_data_range(2013, 2017)
+    # get_report_data_range(2013, 2017)
     # get_industry_classified()
     # get_stock_basics()
     # conn, cur = connect_server()

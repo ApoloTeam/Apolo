@@ -57,6 +57,26 @@ def create_table_report_data():
     conn.commit()
     conn.close()
 
+def create_table_profit_data():
+    try:
+        cur.execute("drop table if exists profit_data")
+        cur.execute("create table profit_data(code decimal(7,0) unsigned, name varchar(20),\
+                    roe decimal(8,2),\
+                    net_profit_ratio decimal(8,2),\
+                    gross_profit_rate decimal(10,4),\
+                    net_profits decimal(10,4),\
+                    eps decimal(8,4),\
+                    business_income decimal(15,4),\
+                    bips decimal(8,4),\
+                    report_y_q decimal(6,0) unsigned)")
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+    conn.close()
+
 
 if __name__ == "__main__":
     create_table_report_data()
