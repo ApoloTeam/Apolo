@@ -5,6 +5,7 @@ from connect_database import connect_engine
 
 conn, cur = connect_server()
 
+
 def create_table_stock_basics():
     try:
         cur.execute("drop table if exists stock_basics")
@@ -37,6 +38,7 @@ def create_table_stock_basics():
     conn.commit()
     conn.close()
 
+
 def create_table_report_data():
     try:
         cur.execute("drop table if exists report_data")
@@ -58,6 +60,7 @@ def create_table_report_data():
     conn.commit()
     conn.close()
 
+
 def create_table_profit_data():
     try:
         cur.execute("drop table if exists profit_data")
@@ -78,6 +81,26 @@ def create_table_profit_data():
     conn.commit()
     conn.close()
 
+
+def create_table_history_data():
+    try:
+        cur.execute("drop table if exists history_data")
+        cur.execute("create table history_data(date date,\
+                    open decimal(7,3),\
+                    close decimal(7,3),\
+                    high decimal(7,3),\
+                    low decimal(7,3),\
+                    volume decimal(10,0),\
+                    code decimal(7,0) unsigned)")
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+    conn.close()
+
+
 def create_industry_classified():
     try:
         cur.execute("drop table if exists industry_classified")
@@ -93,4 +116,4 @@ def create_industry_classified():
     conn.close()
 
 if __name__ == "__main__":
-    create_industry_classified()
+    create_table_history_data()
