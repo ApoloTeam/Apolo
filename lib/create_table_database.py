@@ -1,4 +1,5 @@
 import pymysql
+import sqlalchemy
 from connect_database import connect_server
 from connect_database import connect_engine
 
@@ -77,7 +78,19 @@ def create_table_profit_data():
     conn.commit()
     conn.close()
 
+def create_industry_classified():
+    try:
+        cur.execute("drop table if exists industry_classified")
+        cur.execute("create table industry_classified(code decimal(7,0) unsigned, name varchar(20),\
+                    c_name varchar(20),\
+                    createDate varchar(20))")
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+    conn.close()
 
 if __name__ == "__main__":
-    create_table_report_data()
-    pass
+    create_industry_classified()
