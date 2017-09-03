@@ -1,8 +1,8 @@
 import tushare as ts
 import os
-import datetime
 import pandas as pd
 import numpy as np
+import datetime as dt
 
 import pymysql
 from lib.connect_database import connect_server
@@ -10,12 +10,13 @@ from lib.connect_database import connect_engine
 
 
 print('version: ' + ts.__version__)
-now = datetime.datetime.now()
+now = dt.datetime.now()
 DATA_DIR = 'E:\\Apolo\\raw_data'
 STOCK_BASICS_DIR = os.path.join(DATA_DIR, 'stock_basics')
 REPORT_DATA_DIR = os.path.join(DATA_DIR, 'report_data')
 PROFIT_DATA_DIR = os.path.join(DATA_DIR, 'profit_data')
 INDUSTRY_CLASSIFIED_DIR = os.path.join(DATA_DIR, 'industry_classified')
+HISTORY_DATA_DIR = os.path.join(DATA_DIR, 'history_data')
 
 
 # 获取沪深上市公司基本情况
@@ -77,6 +78,39 @@ def get_profit_data_range(from_year, to_year):
             get_profit_data(y, q)
 
 
+# 按行业分类股票代号列表
+def get_industry_classified():
+    if os.path.exists(INDUSTRY_CLASSIFIED_DIR) is False:
+        os.makedirs(INDUSTRY_CLASSIFIED_DIR)
+    df = ts.get_industry_classified()
+    df.to_csv(os.path.join(INDUSTRY_CLASSIFIED_DIR, '%s%s%s.csv' % (str(now.year),
+                                                                    str(now.strftime('%m')),
+                                                                    str(now.strftime('%d')))))
+    df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
+                                               mm=str(now.strftime('%m')),
+                                               dd=str(now.strftime('%d')))
+    engine = connect_engine()
+    df.to_sql('industry_classified', engine, if_exists='append', index=False)
+    print('Stock basics - industry classified downloaded.')
+
+
+def get_history_data(code, to_year, total_year= 5):
+    PATH = os.path.join(HISTORY_DATA_DIR, code)
+    if os.path.exists(PATH) is False:
+        os.makedirs(PATH)
+
+    for y in np.arange(to_year-total_year, to_year, 1):
+        start = '{yyyy}-01-01'.format(yyyy=y)
+        end = '{yyyy}-12-31'.format(yyyy=y)
+        df = ts.get_k_data(code, autype='qfq', start=start, end=end)
+        df.to_csv(os.path.join(PATH, '{yyyy}.csv'.format(yyyy=y)))
+
+    start = '{yyyy}-01-01'.format(yyyy=to_year)
+    end = str(dt.date.today())
+    df = ts.get_k_data(code, autype='qfq', start=start, end=end)
+    df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=to_year, t=end)))
+
+
 def get_sse50(year, quarter):
     if os.path.exists('./data/sse50') is False:
         os.makedirs('./data/sse50')
@@ -105,21 +139,6 @@ def stock_master(date):
     print(sm['code'])
 
 
-# 按行业分类股票代号列表
-def get_industry_classified():
-    if os.path.exists(INDUSTRY_CLASSIFIED_DIR) is False:
-        os.makedirs(INDUSTRY_CLASSIFIED_DIR)
-    df = ts.get_industry_classified()
-    df.to_csv(os.path.join(INDUSTRY_CLASSIFIED_DIR, '%s%s%s.csv' % (str(now.year),
-                                                                    str(now.strftime('%m')),
-                                                                    str(now.strftime('%d')))))
-    df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
-                                               mm=str(now.strftime('%m')),
-                                               dd=str(now.strftime('%d')))
-    engine = connect_engine()
-    df.to_sql('industry_classified', engine, if_exists='append', index=False)
-    print('Stock basics - industry classified downloaded.')
-
 if __name__ == '__main__':
     # get_sse50(2017, 2)
     # filter_stock_list_sse50(20120101)
@@ -127,8 +146,11 @@ if __name__ == '__main__':
     # get_profit_data_range(2014,2017)
     # get_report_data(2013,1)
     # get_report_data_range(2013, 2017)
-    get_industry_classified()
+    # get_industry_classified()
     # get_stock_basics()
+    # df=ts.get_k_data('600000')
+    # print(df)
+    get_history_data('600000', 2012)
     # conn, cur = connect_server()
     # cur.execute("select * from york")
     # result = cur.fetchall()
