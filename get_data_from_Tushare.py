@@ -8,6 +8,7 @@ import pymysql
 from lib.connect_database import connect_server
 from lib.connect_database import connect_engine
 
+conn, cur = connect_server()
 
 print('version: ' + ts.__version__)
 now = dt.datetime.now()
@@ -17,6 +18,7 @@ REPORT_DATA_DIR = os.path.join(DATA_DIR, 'report_data')
 PROFIT_DATA_DIR = os.path.join(DATA_DIR, 'profit_data')
 INDUSTRY_CLASSIFIED_DIR = os.path.join(DATA_DIR, 'industry_classified')
 HISTORY_DATA_DIR = os.path.join(DATA_DIR, 'history_data')
+STOCK_ID = os.path.join(DATA_DIR, 'stock_id')
 
 
 # 获取沪深上市公司基本情况
@@ -94,21 +96,43 @@ def get_industry_classified():
     print('Stock basics - industry classified downloaded.')
 
 
-def get_history_data(code, to_year, total_year= 5):
+def query_stock_code(stock_code, to_year=2017, total_year=5):
+    cur.execute("select count(code) as b from stock_code where code=%s", stock_code)
+    exist = cur.fetchall()
+    if exist[0][0]:
+        print('The stock code exist already.')
+    else:
+        print('The stock code do NOT exist. Start to download data...')
+        cur.execute("insert into stock_code (code) values (%s)", stock_code)
+        get_history_data(str(stock_code), to_year, total_year)
+
+    conn.commit()
+    conn.close()
+
+
+def get_history_data(code, to_year, total_year):
     PATH = os.path.join(HISTORY_DATA_DIR, code)
     if os.path.exists(PATH) is False:
         os.makedirs(PATH)
 
+    engine = connect_engine()
+
     for y in np.arange(to_year-total_year, to_year, 1):
+        print('Start to download {yyyy}'.format(yyyy=y))
         start = '{yyyy}-01-01'.format(yyyy=y)
         end = '{yyyy}-12-31'.format(yyyy=y)
         df = ts.get_k_data(code, autype='qfq', start=start, end=end)
         df.to_csv(os.path.join(PATH, '{yyyy}.csv'.format(yyyy=y)))
+        df.to_sql('history_data', engine, if_exists='append', index=False)
+        print('completed.')
 
+    print('Start to download {yyyy}'.format(yyyy=to_year))
     start = '{yyyy}-01-01'.format(yyyy=to_year)
     end = str(dt.date.today())
     df = ts.get_k_data(code, autype='qfq', start=start, end=end)
     df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=to_year, t=end)))
+    df.to_sql('history_data', engine, if_exists='append', index=False)
+    print('completed.')
 
 
 def get_sse50(year, quarter):
@@ -150,7 +174,9 @@ if __name__ == '__main__':
     # get_stock_basics()
     # df=ts.get_k_data('600000')
     # print(df)
-    get_history_data('600000', 2012)
+    query_stock_code(600000, 2017)
+    # cur.execute("insert into stock_code (code) values (600000)")
+    # get_history_data('600000', 2017)
     # conn, cur = connect_server()
     # cur.execute("select * from york")
     # result = cur.fetchall()

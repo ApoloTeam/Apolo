@@ -5,6 +5,7 @@ from connect_database import connect_engine
 
 conn, cur = connect_server()
 
+TBL_STOCK_CODE = "create table stock_code(code decimal(7,0) unsigned PRIMARY KEY)"
 
 def create_table_stock_basics():
     try:
@@ -90,8 +91,9 @@ def create_table_history_data():
                     close decimal(7,3),\
                     high decimal(7,3),\
                     low decimal(7,3),\
-                    volume decimal(10,0),\
-                    code decimal(7,0) unsigned)")
+                    volume decimal(13,3),\
+                    code decimal(7,0) unsigned,\
+                    constraint uq_id_date UNIQUE(date,code))")
     except pymysql.Warning as w:
         print("Warning:%s" % str(w))
     except pymysql.Error as e:
@@ -115,5 +117,18 @@ def create_industry_classified():
     conn.commit()
     conn.close()
 
+def create_stock_code():
+    try:
+        # cur.execute("drop table if exists industry_classified")
+        cur.execute(TBL_STOCK_CODE)
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
+    # create_stock_code()
     create_table_history_data()
