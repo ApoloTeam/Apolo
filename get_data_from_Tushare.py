@@ -97,7 +97,7 @@ def get_industry_classified():
 
 
 def query_stock_code(stock_code, to_year=2017, total_year=5):
-    cur.execute("select count(code) as b from stock_code where code=%s", stock_code)
+    cur.execute("select count(code) from stock_code where code=%s", stock_code)
     exist = cur.fetchall()
     if exist[0][0]:
         print('The stock code exist already.')
@@ -107,7 +107,40 @@ def query_stock_code(stock_code, to_year=2017, total_year=5):
         get_history_data(str(stock_code), to_year, total_year)
 
     conn.commit()
-    conn.close()
+
+
+# todo: update data
+
+
+def query_industry(industry, to_year=2017, total_year=5):
+    cur.execute("select * from industry_classified where c_name={i}".format(i=industry))
+    list_stock_codes = cur.fetchall()
+    for code in list_stock_codes:
+        print(code[0])
+        query_stock_code(code[0], to_year, total_year)
+    print('Done')
+
+
+def query_stock_basics(stock_code, field):
+    cur.execute("select {f} from stock_basics where code={code}".format(f=field, code=stock_code))
+    f = cur.fetchall()
+    return f[0][0]
+
+
+def query_timeToMarket(stock_code):
+    timeToMarket = query_stock_basics(stock_code, field='timeToMarket')
+    # print(round(year/10000))  # to take year because data type is int
+    return timeToMarket
+
+
+def test(to_year=2017, total_year=5):
+    new_year=int('{yyyy}{mm}{dd}'.format(yyyy=to_year-total_year, mm='01', dd='01'))
+    timeToMarket = query_timeToMarket(600959)
+    if new_year<=timeToMarket:
+        print(timeToMarket)
+        print(new_year)
+    else:
+        print(new_year)
 
 
 def get_history_data(code, to_year, total_year):
@@ -116,6 +149,11 @@ def get_history_data(code, to_year, total_year):
         os.makedirs(PATH)
 
     engine = connect_engine()
+
+# todo: if not enough 5 years, means if don't match total_year
+    timeToMarket = query_timeToMarket(code)
+
+
 
     for y in np.arange(to_year-total_year, to_year, 1):
         print('Start to download {yyyy}'.format(yyyy=y))
@@ -164,26 +202,13 @@ def stock_master(date):
 
 
 if __name__ == '__main__':
-    # get_sse50(2017, 2)
-    # filter_stock_list_sse50(20120101)
-    # get_profit_data(2013, 1)
-    # get_profit_data_range(2014,2017)
-    # get_report_data(2013,1)
-    # get_report_data_range(2013, 2017)
-    # get_industry_classified()
-    # get_stock_basics()
-    # df=ts.get_k_data('600000')
+    # df=ts.get_k_data('600959')
     # print(df)
-    query_stock_code(600000, 2017)
-    # cur.execute("insert into stock_code (code) values (600000)")
-    # get_history_data('600000', 2017)
-    # conn, cur = connect_server()
-    # cur.execute("select * from york")
-    # result = cur.fetchall()
-    # print(result)
-    # conn,cur = connect_server()
-    # cur.execute("select * from york")
-    # result = cur.fetchall()
-    # print(result)
-
-
+    # query_industry('传媒娱乐')
+    # query_stock_code(600000, 2017)
+    # get_stock_basics()
+    # query_stock_basics(600959, 'timeToMarket')
+    # query_timeToMarket(600959)
+    test()
+    # get_history_data('600959', 2017, 5)
+    # conn.close()
