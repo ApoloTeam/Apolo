@@ -1,7 +1,6 @@
 import pymysql
 import sqlalchemy
-from connect_database import connect_server
-from connect_database import connect_engine
+from Apolo.modules.connect_database import connect_server
 
 conn, cur = connect_server()
 

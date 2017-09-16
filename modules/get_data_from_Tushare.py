@@ -5,8 +5,8 @@ import numpy as np
 import datetime as dt
 
 import pymysql
-from lib.connect_database import connect_server
-from lib.connect_database import connect_engine
+from Apolo.modules.connect_database import connect_server
+from Apolo.modules.connect_database import connect_engine
 
 conn, cur = connect_server()
 
