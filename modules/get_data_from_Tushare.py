@@ -134,13 +134,20 @@ def query_timeToMarket(stock_code):
 
 
 def test(to_year=2017, total_year=5):
-    new_year=int('{yyyy}{mm}{dd}'.format(yyyy=to_year-total_year, mm='01', dd='01'))
+    list_year = []
+    new_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
     timeToMarket = query_timeToMarket(600959)
-    if new_year<=timeToMarket:
-        print(timeToMarket)
-        print(new_year)
+    if int(new_year) <= timeToMarket:
+        from_year = str(timeToMarket)
+        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
+                                                   mm=from_year[4:6],
+                                                   dd=from_year[6:8]))
+        print(list_year)
     else:
-        print(new_year)
+        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=new_year[0:4],
+                                                   mm=new_year[4:6],
+                                                   dd=new_year[6:8]))
+        print(list_year)
 
 
 def get_history_data(code, to_year, total_year):
@@ -151,11 +158,20 @@ def get_history_data(code, to_year, total_year):
     engine = connect_engine()
 
 # todo: if not enough 5 years, means if don't match total_year
+    list_year = []
+    new_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
     timeToMarket = query_timeToMarket(code)
+    if int(new_year) <= timeToMarket:
+        from_year = str(timeToMarket)
+        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
+                                                   mm=from_year[4:6],
+                                                   dd=from_year[6:8]))
+    else:
+        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=new_year[0:4],
+                                                   mm=new_year[4:6],
+                                                   dd=new_year[6:8]))
 
-
-
-    for y in np.arange(to_year-total_year, to_year, 1):
+    for y in np.arange(int(from_year[0:4]), to_year, 1):
         print('Start to download {yyyy}'.format(yyyy=y))
         start = '{yyyy}-01-01'.format(yyyy=y)
         end = '{yyyy}-12-31'.format(yyyy=y)

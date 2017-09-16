@@ -136,10 +136,15 @@ def create_stock_code():  # The table is used for checking which stock had been 
     conn.commit()
     conn.close()
 
-if __name__ == "__main__":
+
+def create_table():
     create_table_stock_basics()
     create_table_report_data()
     create_table_profit_data()
     create_table_history_data()
     create_industry_classified()
     create_stock_code()
+
+
+if __name__ == "__main__":
+    create_table()
