@@ -6,6 +6,19 @@ conn, cur = connect_server()
 
 TBL_STOCK_CODE = "create table stock_code(code decimal(7,0) unsigned PRIMARY KEY)"
 
+
+def create_database():
+    try:
+        cur.execute("create database apolo")
+        print('apolo database created.')
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+
+
 def create_table_stock_basics():
     try:
         # cur.execute("drop table if exists stock_basics")
@@ -37,7 +50,6 @@ def create_table_stock_basics():
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
 def create_table_report_data():
@@ -60,7 +72,6 @@ def create_table_report_data():
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
 def create_table_profit_data():
@@ -82,7 +93,6 @@ def create_table_profit_data():
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
 def create_table_history_data():
@@ -103,7 +113,6 @@ def create_table_history_data():
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
 def create_industry_classified():
@@ -119,7 +128,6 @@ def create_industry_classified():
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
 def create_stock_code():  # The table is used for checking which stock had been import already.
@@ -133,17 +141,19 @@ def create_stock_code():  # The table is used for checking which stock had been 
         print("Error %d:%s" % (e.args[0], e.args[1]))
 
     conn.commit()
-    conn.close()
 
 
-def create_table():
+
+def create_tables():
+    create_database()
     create_table_stock_basics()
     create_table_report_data()
     create_table_profit_data()
     create_table_history_data()
     create_industry_classified()
     create_stock_code()
+    conn.close()
 
 
 if __name__ == "__main__":
-    create_table()
+    create_tables()
