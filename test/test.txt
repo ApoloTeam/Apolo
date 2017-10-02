@@ -1,6 +1,0 @@
-hello,
-this is for testing the git push.
-thanks.
-
-20171002
- - create a new branch
