@@ -93,6 +93,7 @@ def get_industry_classified():
                                                dd=str(now.strftime('%d')))
     engine = connect_engine()
     df.to_sql('industry_classified', engine, if_exists='append', index=False)
+    print(df)
     print('Stock basics - industry classified downloaded.')
 
 
@@ -104,7 +105,7 @@ def query_stock_code(stock_code, to_year=2017, total_year=5):
     else:
         print('The stock code do NOT exist. Start to download data...')
         cur.execute("insert into stock_code (code) values (%s)", stock_code)
-        get_history_data(str(stock_code), to_year, total_year)
+        get_history_data(str(stock_code).zfill(6), to_year, total_year)
 
     conn.commit()
 
@@ -113,7 +114,7 @@ def query_stock_code(stock_code, to_year=2017, total_year=5):
 
 
 def query_industry(industry, to_year=2017, total_year=5):
-    cur.execute("select * from industry_classified where c_name={i}".format(i=industry))
+    cur.execute("select * from industry_classified where c_name=\'{i}\'".format(i=industry))
     list_stock_codes = cur.fetchall()
     for code in list_stock_codes:
         print(code[0])
@@ -133,52 +134,42 @@ def query_timeToMarket(stock_code):
     return timeToMarket
 
 
-def test(to_year=2017, total_year=5):
-    list_year = []
-    new_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
-    timeToMarket = query_timeToMarket(600959)
-    if int(new_year) <= timeToMarket:
-        from_year = str(timeToMarket)
-        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
-                                                   mm=from_year[4:6],
-                                                   dd=from_year[6:8]))
-        print(list_year)
-    else:
-        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=new_year[0:4],
-                                                   mm=new_year[4:6],
-                                                   dd=new_year[6:8]))
-        print(list_year)
+def test():
+    pass
 
 
 def get_history_data(code, to_year, total_year):
+    engine = connect_engine()
     PATH = os.path.join(HISTORY_DATA_DIR, code)
     if os.path.exists(PATH) is False:
         os.makedirs(PATH)
 
-    engine = connect_engine()
-
-# todo: if not enough 5 years, means if don't match total_year
-    list_year = []
     new_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
     timeToMarket = query_timeToMarket(code)
     if int(new_year) <= timeToMarket:
         from_year = str(timeToMarket)
-        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
-                                                   mm=from_year[4:6],
-                                                   dd=from_year[6:8]))
+        from_year = ('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
+                                                 mm=from_year[4:6],
+                                                 dd=from_year[6:8]))
     else:
-        list_year.append('{yyyy}-{mm}-{dd}'.format(yyyy=new_year[0:4],
-                                                   mm=new_year[4:6],
-                                                   dd=new_year[6:8]))
+        from_year = new_year
 
-    for y in np.arange(int(from_year[0:4]), to_year, 1):
+    print('Start to download from year {from_year}'.format(from_year=from_year))
+    start = from_year
+    end = '{yyyy}-12-31'.format(yyyy=from_year[0:4])
+    df = ts.get_k_data(code, autype='qfq', start=start, end=end)
+    df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=start, t=from_year[0:4])))
+    df.to_sql('history_data', engine, if_exists='append', index=False)
+    print('-- completed.')
+
+    for y in np.arange(int(from_year[0:4])+1, to_year, 1):
         print('Start to download {yyyy}'.format(yyyy=y))
         start = '{yyyy}-01-01'.format(yyyy=y)
         end = '{yyyy}-12-31'.format(yyyy=y)
         df = ts.get_k_data(code, autype='qfq', start=start, end=end)
         df.to_csv(os.path.join(PATH, '{yyyy}.csv'.format(yyyy=y)))
         df.to_sql('history_data', engine, if_exists='append', index=False)
-        print('completed.')
+        print('-- completed.')
 
     print('Start to download {yyyy}'.format(yyyy=to_year))
     start = '{yyyy}-01-01'.format(yyyy=to_year)
@@ -186,7 +177,7 @@ def get_history_data(code, to_year, total_year):
     df = ts.get_k_data(code, autype='qfq', start=start, end=end)
     df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=to_year, t=end)))
     df.to_sql('history_data', engine, if_exists='append', index=False)
-    print('completed.')
+    print('-- completed.')
 
 
 def get_sse50(year, quarter):
@@ -218,13 +209,6 @@ def stock_master(date):
 
 
 if __name__ == '__main__':
-    # df=ts.get_k_data('600959')
-    # print(df)
-    # query_industry('传媒娱乐')
-    # query_stock_code(600000, 2017)
-    # get_stock_basics()
-    # query_stock_basics(600959, 'timeToMarket')
-    # query_timeToMarket(600959)
-    test()
-    # get_history_data('600959', 2017, 5)
+    query_industry('传媒娱乐')
     # conn.close()
+
