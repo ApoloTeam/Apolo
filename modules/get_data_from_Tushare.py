@@ -137,22 +137,23 @@ def query_timeToMarket(stock_code):
 def test():
     pass
 
-
+# todo: if total of year exceed 5 years, data
 def get_history_data(code, to_year, total_year):
     engine = connect_engine()
     PATH = os.path.join(HISTORY_DATA_DIR, code)
     if os.path.exists(PATH) is False:
         os.makedirs(PATH)
 
-    new_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
+    start_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
+    start_year_ = '{yyyy}-{mm}-{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
     timeToMarket = query_timeToMarket(code)
-    if int(new_year) <= timeToMarket:
+    if int(start_year) <= timeToMarket:
         from_year = str(timeToMarket)
         from_year = ('{yyyy}-{mm}-{dd}'.format(yyyy=from_year[0:4],
                                                  mm=from_year[4:6],
                                                  dd=from_year[6:8]))
     else:
-        from_year = new_year
+        from_year = start_year_
 
     print('Start to download from year {from_year}'.format(from_year=from_year))
     start = from_year
@@ -210,5 +211,7 @@ def stock_master(date):
 
 if __name__ == '__main__':
     query_industry('传媒娱乐')
+    # df = ts.get_k_data("000156", autype='qfq', start='2012-01-01', end='2012-03-31')
+    # print(df)
     # conn.close()
 
