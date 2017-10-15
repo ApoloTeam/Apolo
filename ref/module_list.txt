@@ -1,0 +1,11 @@
+Library needed to be installed:
+
+tushare
+lxml
+pandas
+numpy
+requests
+bs4
+xlrd
+sqlalchemy
+mysql-connector (install 2.1.4)
