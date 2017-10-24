@@ -4,6 +4,7 @@ from sqlalchemy import Table,Column,Integer,DECIMAL,String,Date,MetaData,Foreign
 from sqlalchemy import select
 from sqlalchemy import func
 from sqlalchemy import create_engine
+from sqlalchemy import exc
 from config import Config
 from table_creator import Table_creator
 import datetime
@@ -26,8 +27,12 @@ class Db_connector:
         
         
         #create db if not exists
-        self.str_db_k_data = 'db_k_data' 
+        self.str_db_k_data = 'db_k_data' #k_data database
         self.create_db(self.str_db_k_data)
+        
+        #stock classification database
+        self.str_db_stock_classification = 'db_stock_class' #stock classification database
+        self.create_db(self.str_db_stock_classification)
            
         #create table
         self.table_creator = Table_creator()
@@ -51,6 +56,22 @@ class Db_connector:
         print("engine:"+db_name+' OK')
         return engine
         
+    def insert_to_db_no_duplicate(self,df,table_name,engine):
+        
+        try:
+            df.to_sql(name=table_name,con=engine,if_exists='append',index=False)
+        except exc.IntegrityError:
+            print("Data duplicated, try to insert one by one")
+            #df is a dataframe
+            num_rows =  len(df)
+            #iterate one row at a time
+            for i in range(num_rows):
+                try:
+                    #try inserting the row
+                    df[i:i+1].to_sql(name=table_name,con=engine,if_exists='append',index=False)
+                except exc.IntegrityError:
+                    #ignore duplicates
+                    pass
         
     def update_db_k_data(self,stock_code):
         
@@ -88,11 +109,51 @@ class Db_connector:
         #insert data to database
         k_data.to_sql(table_name,engine,if_exists='append',index=False)
         
-        #close the engin pool
+        #close the engine pool
+        engine.dispose()
+        
+    def update_stock_list(self):
+        
+        ##update sz50 list:
+        #engine = self.create_db_engine(self.str_db_stock_classification)
+        #table_sz50_list = self.table_creator.get_table_sz50_list()
+        #table_sz50_list.create(engine,checkfirst=True)
+        #print("Create %s list table ok!"%table_sz50_list.name)
+        ##get the sz50 list from Tushare
+        #sz50_list = ts.get_sz50s()
+        ##insert sz50 list 
+        #sz50_list.to_sql(table_sz50_list.name,engine,if_exists='append',index=False)
+        #print("Insert %s data ok!"%table_sz50_list.name)
+        
+        #update hs300(沪深300) list:
+        table_hs300_list = self.table_creator.get_table_hs300_list()
+        table_hs300_list.create(engine,checkfirst=True)
+        print("Create %s list table ok!"%table_hs300_list.name)
+        #get the list from Tushare
+        hs300_list = ts.get_hs300s()
+        print('get %s data ok!'%table_hs300_list.name)
+        #insert list 
+        self.insert_to_db_no_duplicate(hs300_list,table_hs300_list.name,engine)
+        print("Insert %s data ok!"%table_hs300_list.name)
+        
+        
+        ##update zz500(中证500) list:
+        #table_zz500_list = self.table_creator.get_table_zz500_list()
+        #table_zz500_list.create(engine,checkfirst=True)
+        #print("Create %s list table ok!"%table_zz500_list.name)
+        ##get the list from Tushare
+        #zz500_list = ts.get_zz500s()
+        #print('get %s data ok!'%table_zz500_list.name)
+        ##insert list 
+        #self.insert_to_db_no_duplicate(zz500_list,table_zz500_list.name,engine)
+        #print("Insert %s data ok!"%table_zz500_list.name)
+        
+        #close the engine pool
         engine.dispose()
     
 if __name__=='__main__':
     test=Db_connector()
-    test.update_db_k_data('000002')
+    #test.update_db_k_data('000002')
+    test.update_stock_list()
     print("ok")
     

@@ -19,4 +19,31 @@ class Table_creator:
             Column('code',String(100))    #证券代码
             )
         return table_k_data
-        
+                
+    #上证50
+    def get_table_sz50_list(self):
+        table_sz50_list = Table('sz50_list',self.metadata,
+                              Column('code',String(100),primary_key=True),
+                              Column('name',String(100))
+                              )
+        return table_sz50_list
+    
+    #中证500
+    def get_table_zz500_list(self):
+        table_zz500_list = Table('zz500_list',self.metadata,
+                              Column('code',String(100),primary_key=True),
+                              Column('name',String(100)),
+                              Column('date',Date()),
+                              Column('weight',DECIMAL(10,4))
+                              )
+        return table_zz500_list
+    
+    #沪深300
+    def get_table_hs300_list(self):
+        table_hs300_list = Table('hs300_list',self.metadata,
+                              Column('code',String(100),primary_key=True),
+                              Column('name',String(100)),
+                              Column('date',Date()),
+                              Column('weight',DECIMAL(10,4))
+                              )
+        return table_hs300_list
