@@ -30,6 +30,9 @@ class Db_connector:
         self.str_db_k_data = 'db_k_data' #k_data database
         self.create_db(self.str_db_k_data)
         
+        self.str_db_history_data = 'db_history_data' #history_data database
+        self.create_db(self.str_db_history_data)
+        
         #stock classification database
         self.str_db_stock_classification = 'db_stock_class' #stock classification database
         self.create_db(self.str_db_stock_classification)
@@ -56,10 +59,10 @@ class Db_connector:
         print("engine:"+db_name+' OK')
         return engine
         
-    def insert_to_db_no_duplicate(self,df,table_name,engine):
+    def insert_to_db_no_duplicate(self,df,table_name,engine,has_index=False):
         
         try:
-            df.to_sql(name=table_name,con=engine,if_exists='append',index=False)
+            df.to_sql(name=table_name,con=engine,if_exists='append',index=has_index)
         except exc.IntegrityError:
             print("Data duplicated, try to insert one by one")
             #df is a dataframe
@@ -68,7 +71,7 @@ class Db_connector:
             for i in range(num_rows):
                 try:
                     #try inserting the row
-                    df[i:i+1].to_sql(name=table_name,con=engine,if_exists='append',index=False)
+                    df[i:i+1].to_sql(name=table_name,con=engine,if_exists='append',index=has_index)
                 except exc.IntegrityError:
                     #ignore duplicates
                     pass
@@ -107,7 +110,9 @@ class Db_connector:
         print(k_data)
         
         #insert data to database
-        k_data.to_sql(table_name,engine,if_exists='append',index=False)
+        #k_data.to_sql(table_name,engine,if_exists='append',index=False)
+        self.insert_to_db_no_duplicate(k_data,table_k_table.name,engine)
+        
         
         #close the engine pool
         engine.dispose()
@@ -151,9 +156,49 @@ class Db_connector:
         #close the engine pool
         engine.dispose()
     
+    def update_db_history_data(self,stock_code):
+        
+        #create db engine
+        engine = self.create_db_engine(self.str_db_history_data)
+        
+        #set the table name
+        table_name = 'history_data_'+stock_code
+        table_history_table = self.table_creator.get_table_history_data(table_name) 
+        table_history_table.create(engine,checkfirst=True)   #create table
+        print("Create table:%s ok!"%(table_name))
+        
+        #get the start date 
+        result = engine.execute("select max(%s) from %s"%(table_history_table.c.date,table_name))
+        last_date = result.fetchone()[0]
+        if last_date==None:
+            start_date = datetime.date(2000,1,1) #default start date
+        else:
+            start_date=last_date+datetime.timedelta(days=1)
+            
+        #get the end date
+        end_date = datetime.date.today()
+        
+        if(start_date<end_date):
+            str_start_date = start_date.strftime("%Y-%m-%d")
+            str_end_date = end_date.strftime("%Y-%m-%d")
+        else:
+            str_end_date = end_date.strftime("%Y-%m-%d")
+            str_start_date = str_end_date
+        print('start date:'+str_start_date+' ; end date:'+str_end_date)
+        #get the history data from Tushare
+        history_data= ts.get_hist_data(code=stock_code,start=str_start_date,end=str_end_date)
+        print(history_data)
+        
+        #insert data to database
+        self.insert_to_db_no_duplicate(history_data,table_history_table.name,engine,has_index=True)
+        
+        #close the engine pool
+        engine.dispose()
+        
 if __name__=='__main__':
     test=Db_connector()
-    #test.update_db_k_data('000002')
-    test.update_stock_list()
+    test.update_db_k_data('000002')
+    test.update_db_history_data('000002')
+    #test.update_stock_list()
     print("ok")
     
