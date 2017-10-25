@@ -19,7 +19,8 @@ REPORT_DATA_DIR = os.path.join(DATA_DIR, 'report_data')
 PROFIT_DATA_DIR = os.path.join(DATA_DIR, 'profit_data')
 INDUSTRY_CLASSIFIED_DIR = os.path.join(DATA_DIR, 'industry_classified')
 HISTORY_DATA_DIR = os.path.join(DATA_DIR, 'history_data')
-STOCK_ID = os.path.join(DATA_DIR, 'stock_id')
+STOCK_ID_DIR = os.path.join(DATA_DIR, 'stock_id')
+DIVIDEND_PLAN_DIR = os.path.join(DATA_DIR, 'dividend_plan')
 
 
 # 获取沪深上市公司基本情况
@@ -111,6 +112,54 @@ def get_industry_classified():
         print('Success: Stock basics - industry classified downloaded.')
 
 
+def get_dividend_plan(year, top=3000):
+    try:
+        if os.path.exists(DIVIDEND_PLAN_DIR) is False:
+            os.makedirs(DIVIDEND_PLAN_DIR)
+        df = ts.profit_data(year, top)
+        df.to_csv(os.path.join(DIVIDEND_PLAN_DIR, '{yyyy}.csv'.format(yyyy=year)))
+        # df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
+        #                                            mm=str(now.strftime('%m')),
+        #                                            dd=str(now.strftime('%d')))
+        engine = connect_engine()
+        df.to_sql('dividend_plan', engine, if_exists='append', index=False)
+    except IntegrityError as error:
+        print(error)
+    else:
+        print('Success: {yyyy} year dividend_plan downloaded.'.format(yyyy=year))
+
+
+# ----- SSE top 50 -----
+def get_sse50(year, quarter):
+    if os.path.exists('./data/sse50') is False:
+        os.makedirs('./data/sse50')
+    df = ts.get_sz50s()
+    df.to_csv('./data/sse50/sse50_%s_%s.csv' % (str(year), str(quarter)))
+    print('\n%s year %s quarter sse50 downloaded.' % (str(year), str(quarter)))
+
+
+def filter_stock_list_sse50(date):
+    sse50 = pd.read_csv('./data/sse50/2017_2.csv', encoding='gbk')
+    stock_list = pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk')
+    data = pd.merge(sse50, stock_list, on=['code'], how='left')
+    data = data[(data['timeToMarket'] < date)]
+    data = data[['code', 'name_x', 'area', 'industry', 'timeToMarket']]
+    data = pd.DataFrame(data)
+    data = data.fillna({'area': 'miss', 'industry': 'miss'})
+    data.to_csv('./data/sse50/2017_2_Filtered.csv')
+
+
+# ----- list of code with date range -----
+def stock_master(date):
+    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170525.csv', encoding='gbk'))
+    sm = sm[(sm['timeToMarket'] < date)]
+    sm = sm.sort_values(by=['code'], ascending=True)
+    # print(sm.head(10))
+    # print(type(sm['code']))
+    print(sm['code'])
+
+
+# ----- Below function use code to search -----
 def query_stock_code(stock_code, to_year=2017, total_year=5):
     cur.execute("select count(code) from stock_code where code=%s", stock_code)
     exist = cur.fetchall()
@@ -152,6 +201,8 @@ def test():
     pass
 
 # todo: if total of year exceed 5 years, data
+
+
 def get_history_data(code, to_year, total_year):
     engine = connect_engine()
     PATH = os.path.join(HISTORY_DATA_DIR, code)
@@ -194,43 +245,16 @@ def get_history_data(code, to_year, total_year):
         df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=to_year, t=end)))
         df.to_sql('history_data', engine, if_exists='append', index=False)
         print('-- completed.')
+
     except IntegrityError as error:
         print(error)
     except:
         print("Error")
 
 
-def get_sse50(year, quarter):
-    if os.path.exists('./data/sse50') is False:
-        os.makedirs('./data/sse50')
-    df = ts.get_sz50s()
-    df.to_csv('./data/sse50/sse50_%s_%s.csv' % (str(year), str(quarter)))
-    print('\n%s year %s quarter sse50 downloaded.' % (str(year), str(quarter)))
-
-
-def filter_stock_list_sse50(date):
-    sse50 = pd.read_csv('./data/sse50/2017_2.csv', encoding='gbk')
-    stock_list = pd.read_csv('./data/stock_basics/20170601.csv', encoding='gbk')
-    data = pd.merge(sse50, stock_list, on=['code'], how='left')
-    data = data[(data['timeToMarket'] < date)]
-    data = data[['code', 'name_x', 'area', 'industry', 'timeToMarket']]
-    data = pd.DataFrame(data)
-    data = data.fillna({'area': 'miss', 'industry': 'miss'})
-    data.to_csv('./data/sse50/2017_2_Filtered.csv')
-
-
-def stock_master(date):
-    sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170525.csv', encoding='gbk'))
-    sm = sm[(sm['timeToMarket'] < date)]
-    sm = sm.sort_values(by=['code'], ascending=True)
-    print(sm.head(10))
-    print(type(sm['code']))
-    print(sm['code'])
-
-
 if __name__ == '__main__':
-    query_industry('传媒娱乐')
+    # query_industry('传媒娱乐')
     # df = ts.get_k_data("000156", autype='qfq', start='2012-01-01', end='2012-03-31')
     # print(df)
     # conn.close()
-
+    get_dividend_plan(2016)

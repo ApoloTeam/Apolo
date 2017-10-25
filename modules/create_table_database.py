@@ -143,6 +143,22 @@ def create_stock_code():  # The table is used for checking which stock had been 
     conn.commit()
 
 
+def create_table_dividend_plan():
+    try:
+        # cur.execute("drop table if exists history_data")
+        cur.execute("create table dividend_plan(code decimal(7,0) unsigned, name varchar(20),\
+                    year decimal(4,0) unsigned,\
+                    report_date varchar(10),\
+                    divi decimal(4,2) unsigned,\
+                    shares decimal(5,2) unsigned)")
+        print('dividend_plan table created.')
+    except pymysql.Warning as w:
+        print("Warning:%s" % str(w))
+    except pymysql.Error as e:
+        print("Error %d:%s" % (e.args[0], e.args[1]))
+
+    conn.commit()
+
 
 def create_tables():
     create_database()
@@ -156,4 +172,5 @@ def create_tables():
 
 
 if __name__ == "__main__":
-    create_tables()
+    # create_tables()
+    create_table_dividend_plan()
