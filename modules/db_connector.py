@@ -119,16 +119,7 @@ class Db_connector:
         
     def update_stock_list(self):
         
-        ##update sz50 list:
-        #engine = self.create_db_engine(self.str_db_stock_classification)
-        #table_sz50_list = self.table_creator.get_table_sz50_list()
-        #table_sz50_list.create(engine,checkfirst=True)
-        #print("Create %s list table ok!"%table_sz50_list.name)
-        ##get the sz50 list from Tushare
-        #sz50_list = ts.get_sz50s()
-        ##insert sz50 list 
-        #sz50_list.to_sql(table_sz50_list.name,engine,if_exists='append',index=False)
-        #print("Insert %s data ok!"%table_sz50_list.name)
+        engine = self.create_db_engine(self.str_db_stock_classification)
         
         #update hs300(沪深300) list:
         table_hs300_list = self.table_creator.get_table_hs300_list()
@@ -140,18 +131,6 @@ class Db_connector:
         #insert list 
         self.insert_to_db_no_duplicate(hs300_list,table_hs300_list.name,engine)
         print("Insert %s data ok!"%table_hs300_list.name)
-        
-        
-        ##update zz500(中证500) list:
-        #table_zz500_list = self.table_creator.get_table_zz500_list()
-        #table_zz500_list.create(engine,checkfirst=True)
-        #print("Create %s list table ok!"%table_zz500_list.name)
-        ##get the list from Tushare
-        #zz500_list = ts.get_zz500s()
-        #print('get %s data ok!'%table_zz500_list.name)
-        ##insert list 
-        #self.insert_to_db_no_duplicate(zz500_list,table_zz500_list.name,engine)
-        #print("Insert %s data ok!"%table_zz500_list.name)
         
         #close the engine pool
         engine.dispose()
@@ -187,7 +166,7 @@ class Db_connector:
         print('start date:'+str_start_date+' ; end date:'+str_end_date)
         #get the history data from Tushare
         history_data= ts.get_hist_data(code=stock_code,start=str_start_date,end=str_end_date)
-        print(history_data)
+        #print(history_data)
         
         #insert data to database
         self.insert_to_db_no_duplicate(history_data,table_history_table.name,engine,has_index=True)
@@ -195,10 +174,31 @@ class Db_connector:
         #close the engine pool
         engine.dispose()
         
+    def get_table_data(self,db_name,table_name,select_column=None):
+        '''
+        get the table data
+        '''
+        engine = self.create_db_engine(db_name)
+        result = pd.read_sql_table(table_name,engine,columns=select_column)
+        engine.dispose()
+        return result
+        
+        
 if __name__=='__main__':
     test=Db_connector()
-    test.update_db_k_data('000002')
-    test.update_db_history_data('000002')
-    #test.update_stock_list()
-    print("ok")
+    #test.update_db_k_data('000002')
+    #test.update_db_history_data('000002')
+    test.update_stock_list()
+    
+    #get hs300 list
+    hs300_list_table = test.table_creator.get_table_hs300_list()
+    hs300_list_code = test.get_table_data(test.str_db_stock_classification,hs300_list_table.name,
+                                          [hs300_list_table.c.code.name])
+    #print(hs300_list_code)
+    
+    for record in hs300_list_code[hs300_list_table.c.code.name]:
+        test.update_db_history_data(record)
+        print("update :%s OK"%record)
+    
+    print("Complete ok")
     
