@@ -15,7 +15,8 @@ class Config:
     '''
     def __init__(self):
         self.cf = ConfigParser.ConfigParser()
-        file_path = ".."+os.sep+"config"+os.sep+"config.ini" # 用os.sep来实现跨平台, config.ini文件要在同一个文件夹下
+        #file_path = ".."+os.sep+"config"+os.sep+"config.ini" # 用os.sep来实现跨平台, config.ini文件要在同一个文件夹下
+        file_path = os.path.dirname(os.path.realpath(__file__))+os.sep+'..'+os.sep+"config"+os.sep+"config.ini" # 用os.sep来实现跨平台, config.ini文件要在同一个文件夹下
         self.is_file_exist = True
         
         if os.path.exists(file_path):

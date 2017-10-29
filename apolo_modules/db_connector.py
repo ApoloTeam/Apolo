@@ -1,8 +1,8 @@
 #encoding:utf-8
 
-from sqlalchemy import Table,Column,Integer,DECIMAL,String,Date,MetaData,ForeignKey
-from sqlalchemy import select
-from sqlalchemy import func
+#from sqlalchemy import Table,Column,Integer,DECIMAL,String,Date,MetaData,ForeignKey
+#from sqlalchemy import select
+#from sqlalchemy import func
 from sqlalchemy import create_engine
 from sqlalchemy import exc
 from config import Config
@@ -107,12 +107,10 @@ class Db_connector:
         print('start date:'+str_start_date+' ; end date:'+str_end_date)
         #get the k_data from Tushare
         k_data= ts.get_k_data(code=stock_code,start=str_start_date,end=str_end_date)
-        print(k_data)
+        #print(k_data)
         
         #insert data to database
-        #k_data.to_sql(table_name,engine,if_exists='append',index=False)
         self.insert_to_db_no_duplicate(k_data,table_k_table.name,engine)
-        
         
         #close the engine pool
         engine.dispose()
@@ -188,17 +186,17 @@ if __name__=='__main__':
     test=Db_connector()
     #test.update_db_k_data('000002')
     #test.update_db_history_data('000002')
-    test.update_stock_list()
+    #test.update_stock_list()
     
     #get hs300 list
     hs300_list_table = test.table_creator.get_table_hs300_list()
     hs300_list_code = test.get_table_data(test.str_db_stock_classification,hs300_list_table.name,
                                           [hs300_list_table.c.code.name])
-    #print(hs300_list_code)
+    print(hs300_list_code)
     
-    for record in hs300_list_code[hs300_list_table.c.code.name]:
-        test.update_db_history_data(record)
-        print("update :%s OK"%record)
+    #for record in hs300_list_code[hs300_list_table.c.code.name]:
+        #test.update_db_history_data(record)
+        #print("update :%s OK"%record)
     
     print("Complete ok")
     
