@@ -71,4 +71,18 @@ class Table_creator:
                                 Column('date',Date()),
                                 Column('weight',DECIMAL(10,4))
                                 )
-        return table_hs300_list
+        return table_hs300_list        
+    
+    
+    #分红数据，分配预案
+    def get_table_profit_data(self):
+        metadata = MetaData()
+        table_profit_data= Table('profit_data',metadata,
+                                Column('code',String(100)),
+                                Column('name',String(100)),
+                                Column('year',Integer()),
+                                Column('report_date',Date()),
+                                Column('divi',DECIMAL(10,4)),
+                                Column('shares',DECIMAL(10,2))
+                                )
+        return table_profit_data
