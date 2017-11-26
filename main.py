@@ -9,19 +9,9 @@ class MyClass(QObject):
 
     @pyqtSlot(int, result=str)
     def outputString(string):
-        """
-        功能: 输出字符串
-        参数: 输出的数据string
-        返回值: 无
-        """
         print(string)
 
 def outputString():
-    """
-    功能: 输出字符串
-    参数: 输出的数据string
-    返回值: 无
-    """
     print('hi')
 
 
