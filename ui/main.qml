@@ -65,7 +65,7 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             console.log("btn_update test...")
-                            txt_area.text = con.set_value(20)
+                            txt_area.text = get_set.set_value(20)
                         }
                     }
                 }

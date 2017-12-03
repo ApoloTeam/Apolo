@@ -14,4 +14,3 @@ class GetterSetter(QObject):
 
 def get_string(str_value):
     print(str_value)
-    print(type(str_value))

@@ -10,12 +10,14 @@ if __name__ == '__main__':
 
     app = QGuiApplication([])
     view = QQuickView()
-    con = GetterSetter()
+    get_set = GetterSetter()
     # view.engine().quit.connect(app.quit)  # TODO: what's it
-    rootContext=view.rootContext()
-    rootContext.setContextProperty("con", con)
+    rootContext = view.rootContext()
+    rootContext.setContextProperty("get_set", get_set)
     view.setSource(QUrl(path))
-    view.show()
+
     context = view.rootObject()
     context.sendClicked.connect(get_string)   # 连接QML信号sendCLicked
+
+    view.show()
     app.exec_()
