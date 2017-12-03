@@ -75,9 +75,9 @@ class Table_creator:
     
     
     #分红数据，分配预案
-    def get_table_profit_data(self):
+    def get_table_dividend_data(self):
         metadata = MetaData()
-        table_profit_data= Table('profit_data',metadata,
+        table_dividend_data= Table('dividend_data',metadata,
                                 Column('code',String(100)),
                                 Column('name',String(100)),
                                 Column('year',Integer()),
@@ -85,4 +85,4 @@ class Table_creator:
                                 Column('divi',DECIMAL(10,4)),
                                 Column('shares',DECIMAL(10,2))
                                 )
-        return table_profit_data
+        return table_dividend_data
