@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>tab_1.qml</file>
+        <file>tab_2.qml</file>
+        <file>yanzhengmashibie.qml</file>
+    </qresource>
+</RCC>
