@@ -175,18 +175,18 @@ class Db_connector:
         #close the engine pool
         engine.dispose()
      
-    def update_db_profit_data(self):
+    def update_db_dividend_data(self):
         
         #create db engine
         engine = self.create_db_engine(self.str_db_investment_data)
         
         #set the table name
-        table_profit_data= self.table_creator.get_table_profit_data() 
-        table_profit_data.create(engine,checkfirst=True)   #create table
-        print("Create table:%s ok!"%(table_profit_data.name))
+        table_dividend_data= self.table_creator.get_table_dividend_data() 
+        table_dividend_data.create(engine,checkfirst=True)   #create table
+        print("Create table:%s ok!"%(table_dividend_data.name))
         
         #get the start date 
-        result = engine.execute("select max(%s) from %s"%(table_profit_data.c.year,table_profit_data.name))
+        result = engine.execute("select max(%s) from %s"%(table_dividend_data.c.year,table_dividend_data.name))
         last_year= result.fetchone()[0]
         if last_year==None:
             start_year= 2005 
@@ -201,11 +201,11 @@ class Db_connector:
         print('start year:'+str(start_year)+' ; end year:'+str(end_year))
         #get the profit data
         for n in range(start_year,end_year):
-            profit_data = ts.profit_data(year=n,top=4000)
-            print("profit data at year:%s"%n)
-            print(profit_data)
+            dividend_data = ts.profit_data(year=n,top=4000)
+            print("Dividend data at year:%s"%n)
+            #print(dividend_data)
             #insert data to database
-            self.insert_to_db_no_duplicate(profit_data,table_profit_data.name, engine)
+            self.insert_to_db_no_duplicate(dividend_data,table_dividend_data.name, engine)
         
         #close the engine pool
         engine.dispose()
@@ -218,8 +218,10 @@ class Db_connector:
         result = pd.read_sql_table(table_name,engine,columns=select_column)
         engine.dispose()
         return result
-        
-        
+    
+    #def select_table_data(self,db_name):
+        #engine = self.create_db_engine(db_name)
+    
 if __name__=='__main__':
     test=Db_connector()
     #test.update_db_k_data('000002')
@@ -235,7 +237,9 @@ if __name__=='__main__':
     #for record in hs300_list_code[hs300_list_table.c.code.name]:
         #test.update_db_history_data(record)
         #print("update :%s OK"%record)
-    test.update_db_profit_data()
+        
+    ##update the profit data    
+    test.update_db_dividend_data()
     
     print("Complete ok")
     
