@@ -197,8 +197,11 @@ def query_timeToMarket(stock_code):
     return timeToMarket
 
 
-def test():
-    pass
+def test(stock_code):
+    cur.execute("select * from stock_basics where code={code}".format(code = stock_code))
+    f = cur.fetchall()
+    print(f)
+    return f
 
 # todo: if total of year exceed 5 years, data
 

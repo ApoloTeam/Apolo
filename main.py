@@ -1,8 +1,11 @@
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQuick import QQuickView
-from Apolo.modules.qml_getter_setter import GetterSetter
-from Apolo.modules.qml_getter_setter import get_string
+from Apolo.modules.ui_dao import UIDao
+
+
+def UI_main():
+    pass
 
 
 if __name__ == '__main__':
@@ -10,14 +13,14 @@ if __name__ == '__main__':
 
     app = QGuiApplication([])
     view = QQuickView()
-    get_set = GetterSetter()
+    dao = UIDao()
     # view.engine().quit.connect(app.quit)  # TODO: what's it
     rootContext = view.rootContext()
-    rootContext.setContextProperty("get_set", get_set)
+    rootContext.setContextProperty("dao", dao)
     view.setSource(QUrl(path))
 
     context = view.rootObject()
-    context.sendClicked.connect(get_string)   # 连接QML信号sendCLicked
+    context.sendStockCode.connect(dao.get_stock_code)   # 连接QML信号sendCLicked
 
     view.show()
     app.exec_()

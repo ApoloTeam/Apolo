@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.1
 Item {
     id: root
     width: 640; height: 380
-    signal sendClicked(string str) // 定义信号
+    signal sendStockCode(string str) // 定义信号
 
     GridLayout {
         id: grid
@@ -40,7 +40,7 @@ Item {
                 TextField {
                     id: inp_stock
                     anchors.left: lbl_Stock.right
-                    text: "123456"
+                    text: "603882"
                 }
                 Button {
                     id: btn_search
@@ -51,7 +51,9 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             console.log("btn_search test...")
-                            root.sendClicked(inp_stock.getText(0,inp_stock.length))    // 发射信号到Python
+                            root.sendStockCode(inp_stock.getText(0,inp_stock.length))    // 发射信号到Python
+                            txt_area.text = dao.send_msg("20")
+//                            txt_area.text = dao.set_value(20)
                         }
                     }
                 }
@@ -65,7 +67,7 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             console.log("btn_update test...")
-                            txt_area.text = get_set.set_value(20)
+//                            txt_area.text = dao.set_value(20)
                         }
                     }
                 }
