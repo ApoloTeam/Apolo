@@ -52,7 +52,7 @@ Item {
                         onClicked: {
                             console.log("btn_search test...")
                             root.sendStockCode(inp_stock.getText(0,inp_stock.length))    // 发射信号到Python
-                            txt_area.text = dao.send_msg("20")
+                            txt_area.text = dao.send_msg("Searching")
 //                            txt_area.text = dao.set_value(20)
                         }
                     }
