@@ -6,13 +6,14 @@ Item {
     id: root
     width: 640; height: 380
     signal sendStockCode(string str) // 定义信号
+    signal updateStockCode(string str) // 定义信号
 
     GridLayout {
         id: grid
         width: parent.width
         height: parent.height
         columns: 1
-        rows: 3
+        rows: 1
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -52,7 +53,7 @@ Item {
                         onClicked: {
                             console.log("btn_search test...")
                             root.sendStockCode(inp_stock.getText(0,inp_stock.length))    // 发射信号到Python
-                            txt_area.text = dao.send_msg("Searching")
+                            txt_area.append(dao.send_msg("Searching"))
 //                            txt_area.text = dao.set_value(20)
                         }
                     }
@@ -63,11 +64,12 @@ Item {
                     text: "Update"
                     anchors.left: btn_search.right
                     MouseArea {
-                        id: mouse_area_1
+                        id: msa_update
                         anchors.fill: parent
                         onClicked: {
                             console.log("btn_update test...")
-//                            txt_area.text = dao.set_value(20)
+                            root.updateStockCode(inp_stock.getText(0,inp_stock.length))    // 发射信号到Python
+                            txt_area.append(dao.send_msg("Updating"))
                         }
                     }
                 }
@@ -76,7 +78,7 @@ Item {
         TextArea{
             id: txt_area
             width: parent.width
-            height: parent.height
+            height: 300
             anchors.bottom: parent.bottom
             transformOrigin: Item.Center
             Layout.fillHeight: false

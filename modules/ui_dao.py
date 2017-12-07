@@ -21,11 +21,12 @@ class UIDao(QObject):
         print(string)
 
     def print_stock_code(self, code):
+        self.send_text = "Get stock code: "+code
         print("Get stock code: "+code)
 
     # @staticmethod
     def get_stock_code(self, stock_code):
-        self.print_stock_code(stock_code)
+        # self.print_stock_code(stock_code)
         self.send_text = test(stock_code)
 
 
