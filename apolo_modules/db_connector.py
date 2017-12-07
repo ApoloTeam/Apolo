@@ -10,6 +10,8 @@ from table_creator import Table_creator
 import datetime
 import tushare as ts
 import pandas as pd
+import urllib
+from StringIO import StringIO
 
 class Db_connector:
     '''
@@ -39,6 +41,10 @@ class Db_connector:
         #stock classification database
         self.str_db_stock_classification = 'db_stock_class' #stock classification database
         self.create_db(self.str_db_stock_classification)
+        
+        #consolidated statement (year) database
+        self.str_db_consolidated_statement_year = 'db_consolidated_statement_year'
+        self.create_db(self.str_db_consolidated_statement_year)
            
         #create table
         self.table_creator = Table_creator()
@@ -210,6 +216,59 @@ class Db_connector:
         #close the engine pool
         engine.dispose()
         
+        
+    def update_db_consolidated_statement_year_data(self,stock_num):
+        
+        #create db engine
+        engine = self.create_db_engine(self.str_db_consolidated_statement_year)
+        
+        #set the table name
+        table_name = 'stock_'+str(stock_num)
+        table_consolidated_statement_year= self.table_creator.get_consolidated_statement_year(table_name) 
+        table_consolidated_statement_year.create(engine,checkfirst=True)   #create table
+        print("Create table:%s ok!"%(table_consolidated_statement_year.name))
+        
+        #get data from website(网易财经)
+        url_txt = "http://quotes.money.163.com/service/zcfzb_"+str(stock_num)+".html?type=year"
+        webPage =  urllib.urlopen(url_txt)
+        statement_data = webPage.read().decode('gbk')
+        webPage.close()
+        statement_File = StringIO(statement_data)
+        statement_list_tmp = pd.read_csv(statement_File).T
+        statement_list = statement_list_tmp.dropna(axis=0)
+        statement_list.columns = statement_list_tmp.ix[0]
+        statement_list = statement_list.drop('报告日期')
+        statement_list = statement_list.replace('--',0,regex=True)
+        statement_list.index.name = '报告日期'
+        
+        self.insert_to_db_no_duplicate(statement_list,table_name, engine,True)
+        print(statement_list)        
+        
+        ##get the start date 
+        #result = engine.execute("select max(%s) from %s"%(table_dividend_data.c.year,table_dividend_data.name))
+        #last_year= result.fetchone()[0]
+        #if last_year==None:
+            #start_year= 2005 
+        #else:
+            #start_year= last_year+1
+            
+        ##get the end year
+        #end_year= datetime.datetime.now().year
+        
+        #if(start_year>=end_year):
+            #start_year = end_year
+        #print('start year:'+str(start_year)+' ; end year:'+str(end_year))
+        ##get the profit data
+        #for n in range(start_year,end_year):
+            #dividend_data = ts.profit_data(year=n,top=4000)
+            #print("Dividend data at year:%s"%n)
+            ##print(dividend_data)
+            ##insert data to database
+            #self.insert_to_db_no_duplicate(dividend_data,table_dividend_data.name, engine)
+        
+        #close the engine pool
+        engine.dispose()
+ #-------------------------------------------------------------------------------------------  
     def get_table_data(self,db_name,table_name,select_column=None):
         '''
         get the table data
@@ -239,7 +298,11 @@ if __name__=='__main__':
         #print("update :%s OK"%record)
         
     ##update the profit data    
-    test.update_db_dividend_data()
+    #test.update_db_dividend_data()
+    
+    #test the consolidated statement year data
+    test.update_db_consolidated_statement_year_data('000002')
+    
     
     print("Complete ok")
     
