@@ -5,7 +5,7 @@ Description: For cninfo, to concat the result within data range by specific fund
 import pandas as pd
 import os
 import glob
-from get_data_from_cninfo import DownloadMultiStocks
+from modules.get_data_from_cninfo import DownloadMultiStocks
 
 
 class ImportConcat:

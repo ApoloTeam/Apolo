@@ -5,8 +5,9 @@
 #from sqlalchemy import func
 from sqlalchemy import create_engine
 from sqlalchemy import exc
-from config import Config
-from table_creator import Table_creator
+from configparser import ConfigParser as Config
+# from table_creator import Table_creator
+from modules.table_creator import Table_creator
 import datetime
 import tushare as ts
 import pandas as pd
