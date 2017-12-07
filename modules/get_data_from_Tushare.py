@@ -5,9 +5,8 @@ import numpy as np
 import datetime as dt
 import sqlalchemy
 from sqlalchemy.exc import IntegrityError
-import pymysql
-from Apolo.modules.connect_database import connect_server
-from Apolo.modules.connect_database import connect_engine
+from modules.connect_database import connect_server
+from modules.connect_database import connect_engine
 
 conn, cur = connect_server()
 

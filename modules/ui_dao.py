@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject,pyqtSlot
-from Apolo.modules.get_data_from_Tushare import test
+from modules.get_data_from_Tushare import test
 
 
 class UIDao(QObject):
@@ -28,5 +28,3 @@ class UIDao(QObject):
     def get_stock_code(self, stock_code):
         # self.print_stock_code(stock_code)
         self.send_text = test(stock_code)
-
-
