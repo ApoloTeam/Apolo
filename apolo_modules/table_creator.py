@@ -91,9 +91,9 @@ class Table_creator:
         return table_dividend_data
         
     #合并财务报表－年度
-    def get_consolidated_statement_year(self,table_name):
+    def get_consolidated_bs_year(self,table_name):
         metadata = MetaData()
-        table_consolidated_statement_year= Table(table_name,metadata,
+        table_consolidated_bs_year= Table(table_name,metadata,
                                             Column('报告日期',Date(),primary_key=True),     #时间和日期
                                             Column('货币资金(万元)',DECIMAL(20,4)),  
                                             Column('结算备付金(万元)',DECIMAL(20,4)),  
@@ -204,4 +204,4 @@ class Table_creator:
                                             Column('所有者权益(或股东权益)合计(万元)',DECIMAL(20,4)),  
                                             Column('负债和所有者权益(或股东权益)总计(万元)',DECIMAL(20,4))
                                             )
-        return table_consolidated_statement_year
+        return table_consolidated_bs_year

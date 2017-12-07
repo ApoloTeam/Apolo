@@ -42,9 +42,9 @@ class Db_connector:
         self.str_db_stock_classification = 'db_stock_class' #stock classification database
         self.create_db(self.str_db_stock_classification)
         
-        #consolidated statement (year) database
-        self.str_db_consolidated_statement_year = 'db_consolidated_statement_year'
-        self.create_db(self.str_db_consolidated_statement_year)
+        #consolidated bs (year) database
+        self.str_db_consolidated_bs_year = 'db_consolidated_bs_year'
+        self.create_db(self.str_db_consolidated_bs_year)
            
         #create table
         self.table_creator = Table_creator()
@@ -217,54 +217,57 @@ class Db_connector:
         engine.dispose()
         
         
-    def update_db_consolidated_statement_year_data(self,stock_num):
+    def update_db_consolidated_bs_year_data(self,stock_num):
         
         #create db engine
-        engine = self.create_db_engine(self.str_db_consolidated_statement_year)
+        engine = self.create_db_engine(self.str_db_consolidated_bs_year)
         
         #set the table name
         table_name = 'stock_'+str(stock_num)
-        table_consolidated_statement_year= self.table_creator.get_consolidated_statement_year(table_name) 
-        table_consolidated_statement_year.create(engine,checkfirst=True)   #create table
-        print("Create table:%s ok!"%(table_consolidated_statement_year.name))
+        table_consolidated_bs_year= self.table_creator.get_consolidated_bs_year(table_name) 
+        table_consolidated_bs_year.create(engine,checkfirst=True)   #create table
+        print("Create table:%s ok!"%(table_consolidated_bs_year.name))
         
         #get data from website(网易财经)
         url_txt = "http://quotes.money.163.com/service/zcfzb_"+str(stock_num)+".html?type=year"
         webPage =  urllib.urlopen(url_txt)
-        statement_data = webPage.read().decode('gbk')
+        bs_data = webPage.read().decode('gbk')
         webPage.close()
-        statement_File = StringIO(statement_data)
-        statement_list_tmp = pd.read_csv(statement_File).T
-        statement_list = statement_list_tmp.dropna(axis=0)
-        statement_list.columns = statement_list_tmp.ix[0]
-        statement_list = statement_list.drop('报告日期')
-        statement_list = statement_list.replace('--',0,regex=True)
-        statement_list.index.name = '报告日期'
+        bs_File = StringIO(bs_data)
+        bs_list_tmp = pd.read_csv(bs_File)
+        bs_list = bs_list_tmp.dropna(axis=1) #drop the nan value
+        #get the start date
+        result = engine.execute("select max(%s) from %s"%('报告日期',table_name))
+        last_date = result.fetchone()[0]
         
-        self.insert_to_db_no_duplicate(statement_list,table_name, engine,True)
-        print(statement_list)        
+        if last_date != None:
+            row_data = bs_list.columns[1:bs_list.size-1]
+            i = 0
+            for str_date in row_data:
+                if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
+                    break
+                i = i+1
+            if i>0:
+                bs_list = bs_list.iloc[:,0:i+1]
+                bs_list = bs_list.T    
+                bs_list.columns = bs_list.ix[0]
+                bs_list = bs_list.drop('报告日期')
+                bs_list = bs_list.replace('--',0,regex=True)
+                bs_list.index.name = '报告日期'
         
-        ##get the start date 
-        #result = engine.execute("select max(%s) from %s"%(table_dividend_data.c.year,table_dividend_data.name))
-        #last_year= result.fetchone()[0]
-        #if last_year==None:
-            #start_year= 2005 
-        #else:
-            #start_year= last_year+1
+                self.insert_to_db_no_duplicate(bs_list,table_name, engine,True)
+                print("Update Consolidated BS(year) %s ok!"%table_name)
+            else:
+                print("Consolidated BS(year) %s is the latest!"%table_name)
+        else:
+            bs_list = bs_list.T    
+            bs_list.columns = bs_list.ix[0]
+            bs_list = bs_list.drop('报告日期')
+            bs_list = bs_list.replace('--',0,regex=True)
+            bs_list.index.name = '报告日期'
+            self.insert_to_db_no_duplicate(bs_list,table_name, engine,True)
+            print("Create consolidated BS(year) %s ok!"%table_name)
             
-        ##get the end year
-        #end_year= datetime.datetime.now().year
-        
-        #if(start_year>=end_year):
-            #start_year = end_year
-        #print('start year:'+str(start_year)+' ; end year:'+str(end_year))
-        ##get the profit data
-        #for n in range(start_year,end_year):
-            #dividend_data = ts.profit_data(year=n,top=4000)
-            #print("Dividend data at year:%s"%n)
-            ##print(dividend_data)
-            ##insert data to database
-            #self.insert_to_db_no_duplicate(dividend_data,table_dividend_data.name, engine)
         
         #close the engine pool
         engine.dispose()
@@ -300,8 +303,8 @@ if __name__=='__main__':
     ##update the profit data    
     #test.update_db_dividend_data()
     
-    #test the consolidated statement year data
-    test.update_db_consolidated_statement_year_data('000002')
+    #test the consolidated bs year data
+    test.update_db_consolidated_bs_year_data('000002')
     
     
     print("Complete ok")
