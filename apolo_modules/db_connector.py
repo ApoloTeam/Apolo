@@ -45,6 +45,10 @@ class Db_connector:
         #consolidated bs (year) database
         self.str_db_consolidated_bs_year = 'db_consolidated_bs_year'
         self.create_db(self.str_db_consolidated_bs_year)
+        
+        #consolidated bs (season) database
+        self.str_db_consolidated_bs_season= 'db_consolidated_bs_season'
+        self.create_db(self.str_db_consolidated_bs_season)
            
         #create table
         self.table_creator = Table_creator()
@@ -272,6 +276,61 @@ class Db_connector:
         #close the engine pool
         engine.dispose()
  #-------------------------------------------------------------------------------------------  
+    def update_db_consolidated_bs_season_data(self,stock_num):
+        
+        #create db engine
+        engine = self.create_db_engine(self.str_db_consolidated_bs_season)
+        
+        #set the table name
+        table_name = 'stock_'+str(stock_num)
+        table_consolidated_bs_season= self.table_creator.get_consolidated_bs_season(table_name) 
+        table_consolidated_bs_season.create(engine,checkfirst=True)   #create table
+        print("Create table:%s ok!"%(table_consolidated_bs_season.name))
+        
+        #get data from website(网易财经)
+        url_txt = "http://quotes.money.163.com/service/zcfzb_"+str(stock_num)+".html"
+        webPage =  urllib.urlopen(url_txt)
+        bs_data = webPage.read().decode('gbk')
+        webPage.close()
+        bs_File = StringIO(bs_data)
+        bs_list_tmp = pd.read_csv(bs_File)
+        bs_list = bs_list_tmp.dropna(axis=1) #drop the nan value
+        #get the start date
+        result = engine.execute("select max(%s) from %s"%('报告日期',table_name))
+        last_date = result.fetchone()[0]
+        
+        if last_date != None:
+            row_data = bs_list.columns[1:bs_list.size-1]
+            i = 0
+            for str_date in row_data:
+                if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
+                    break
+                i = i+1
+            if i>0:
+                bs_list = bs_list.iloc[:,0:i+1]
+                bs_list = bs_list.T    
+                bs_list.columns = bs_list.ix[0]
+                bs_list = bs_list.drop('报告日期')
+                bs_list = bs_list.replace('--',0,regex=True)
+                bs_list.index.name = '报告日期'
+        
+                self.insert_to_db_no_duplicate(bs_list,table_name, engine,True)
+                print("Update Consolidated BS(season) %s ok!"%table_name)
+            else:
+                print("Consolidated BS(season) %s is the latest!"%table_name)
+        else:
+            bs_list = bs_list.T    
+            bs_list.columns = bs_list.ix[0]
+            bs_list = bs_list.drop('报告日期')
+            bs_list = bs_list.replace('--',0,regex=True)
+            bs_list.index.name = '报告日期'
+            self.insert_to_db_no_duplicate(bs_list,table_name, engine,True)
+            print("Create consolidated BS(season) %s ok!"%table_name)
+            
+        
+         #close the engine pool
+        engine.dispose()
+#----------------------------------------------------------------------------
     def get_table_data(self,db_name,table_name,select_column=None):
         '''
         get the table data
@@ -304,8 +363,10 @@ if __name__=='__main__':
     #test.update_db_dividend_data()
     
     #test the consolidated bs year data
-    test.update_db_consolidated_bs_year_data('000002')
+    #test.update_db_consolidated_bs_year_data('000002')
     
+    #test the consolidated bs year data
+    test.update_db_consolidated_bs_season_data('000002')
     
     print("Complete ok")
     
