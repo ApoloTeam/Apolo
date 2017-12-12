@@ -376,7 +376,7 @@ class Db_connector:
                 self.insert_to_db_no_duplicate(pl_list,table_name, engine,True)
                 print("Update Consolidated pl(year) %s ok!"%table_name)
             else:
-                print("Consolidated pl(year) %s is the latest!"%table_name)
+                print("Consolidated PL(year) %s is the latest!"%table_name)
         else:
             pl_list = pl_list.T    
             pl_list.columns = pl_list.ix[0]
@@ -384,7 +384,7 @@ class Db_connector:
             pl_list = pl_list.replace('--',0,regex=True)
             pl_list.index.name = '报告日期'
             self.insert_to_db_no_duplicate(pl_list,table_name, engine,True)
-            print("Create consolidated pl(year) %s ok!"%table_name)
+            print("Create consolidated PL(year) %s ok!"%table_name)
             
         
         #close the engine pool
