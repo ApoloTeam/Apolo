@@ -320,4 +320,57 @@ class Table_creator:
                                             Column('所有者权益(或股东权益)合计(万元)',DECIMAL(20,4)),  
                                             Column('负债和所有者权益(或股东权益)总计(万元)',DECIMAL(20,4))
                                             )
-        return table_consolidated_bs_season
+        return table_consolidated_bs_season        
+    
+    #合并利润表－年度
+    def get_consolidated_pl_year(self,table_name):
+        metadata = MetaData()
+        table_consolidated_pl_year= Table(table_name,metadata,
+                                            Column('报告日期',Date(),primary_key=True),     #时间和日期
+                                            Column('营业总收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('利息收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('已赚保费(万元)',DECIMAL(20,4)),                                                 
+                                            Column('手续费及佣金收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('房地产销售收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('其他业务收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业总成本(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业成本(万元)',DECIMAL(20,4)),                                                 
+                                            Column('利息支出(万元)',DECIMAL(20,4)),                                                 
+                                            Column('手续费及佣金支出(万元)',DECIMAL(20,4)),                                                 
+                                            Column('房地产销售成本(万元)',DECIMAL(20,4)),                                                 
+                                            Column('研发费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('退保金(万元)',DECIMAL(20,4)),                                                 
+                                            Column('赔付支出净额(万元)',DECIMAL(20,4)),                                                 
+                                            Column('提取保险合同准备金净额(万元)',DECIMAL(20,4)),                                                 
+                                            Column('保单红利支出(万元)',DECIMAL(20,4)),                                                 
+                                            Column('分保费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('其他业务成本(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业税金及附加(万元)',DECIMAL(20,4)),                                                 
+                                            Column('销售费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('管理费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('财务费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('资产减值损失(万元)',DECIMAL(20,4)),                                                 
+                                            Column('公允价值变动收益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('投资收益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('对联营企业和合营企业的投资收益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('汇兑收益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('期货损益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('托管收益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('补贴收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('其他业务利润(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业利润(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业外收入(万元)',DECIMAL(20,4)),                                                 
+                                            Column('营业外支出(万元)',DECIMAL(20,4)),                                                 
+                                            Column('非流动资产处置损失(万元)',DECIMAL(20,4)),                                                 
+                                            Column('利润总额(万元)',DECIMAL(20,4)),                                                 
+                                            Column('所得税费用(万元)',DECIMAL(20,4)),                                                 
+                                            Column('未确认投资损失(万元)',DECIMAL(20,4)),                                                 
+                                            Column('净利润(万元)',DECIMAL(20,4)),                                                 
+                                            Column('归属于母公司所有者的净利润(万元)',DECIMAL(20,4)),                                                 
+                                            Column('被合并方在合并前实现净利润(万元)',DECIMAL(20,4)),                                                 
+                                            Column('少数股东损益(万元)',DECIMAL(20,4)),                                                 
+                                            Column('基本每股收益',DECIMAL(20,4)),                                                 
+                                            Column('稀释每股收益',DECIMAL(20,4))                                            
+                                            )
+        return table_consolidated_pl_year        
