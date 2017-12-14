@@ -58,6 +58,10 @@ class Db_connector:
         self.str_db_consolidated_pl_season = 'db_consolidated_pl_season'
         self.create_db(self.str_db_consolidated_pl_season)        
         
+        #consolidated cash(year) database
+        self.str_db_consolidated_cash_year= 'db_consolidated_cash_year'
+        self.create_db(self.str_db_consolidated_cash_year)        
+        
         #create table
         self.table_creator = Table_creator()
         
@@ -253,7 +257,7 @@ class Db_connector:
         last_date = result.fetchone()[0]
         
         if last_date != None:
-            row_data = bs_list.columns[1:bs_list.size-1]
+            row_data = bs_list.columns[1:bs_list.columns.size-1]
             i = 0
             for str_date in row_data:
                 if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
@@ -308,7 +312,7 @@ class Db_connector:
         last_date = result.fetchone()[0]
         
         if last_date != None:
-            row_data = bs_list.columns[1:bs_list.size-1]
+            row_data = bs_list.columns[1:bs_list.columns.size-1]
             i = 0
             for str_date in row_data:
                 if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
@@ -363,7 +367,7 @@ class Db_connector:
         last_date = result.fetchone()[0]
         
         if last_date != None:
-            row_data = pl_list.columns[1:pl_list.size-1]
+            row_data = pl_list.columns[1:pl_list.columns.size-1]
             i = 0
             for str_date in row_data:
                 if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
@@ -418,7 +422,7 @@ class Db_connector:
         last_date = result.fetchone()[0]
             
         if last_date != None:
-            row_data = pl_list.columns[1:pl_list.size-1]
+            row_data = pl_list.columns[1:pl_list.columns.size-1]
             i = 0
             for str_date in row_data:
                 if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
@@ -448,6 +452,64 @@ class Db_connector:
             
         #close the engine pool
         engine.dispose()
+    #----------------------------------------------------------------------------
+    def update_db_consolidated_cash_year_data(self,stock_num):
+            
+            #create db engine
+            engine = self.create_db_engine(self.str_db_consolidated_cash_year)
+            
+            #set the table name
+            table_name = 'stock_'+str(stock_num)
+            table_consolidated_cash_year= self.table_creator.get_consolidated_cash(table_name) 
+            table_consolidated_cash_year.create(engine,checkfirst=True)   #create table
+            print("Create table:%s ok!"%(table_consolidated_cash_year.name))
+            
+            #get data from website(网易财经)
+            url_txt = "http://quotes.money.163.com/service/xjllb_"+str(stock_num)+".html?type=year"
+            webPage =  urllib.urlopen(url_txt)
+            cash_data = webPage.read().decode('gbk')
+            webPage.close()
+            cash_File = StringIO(cash_data)
+            cash_list_tmp = pd.read_csv(cash_File)
+            cash_list = cash_list_tmp.dropna(axis=1)
+            #get the start date
+            result = engine.execute("select max(%s) from %s"%('报告日期',table_name))
+            last_date = result.fetchone()[0]
+            
+            if last_date != None:
+                row_data = cash_list.columns[1:cash_list.columns.size-1]#不包括第一和最后一行，因为第一行为报告日期，最后一行为空行
+                i = 0
+                for str_date in row_data:
+                    if last_date >= datetime.datetime.strptime(str_date,'%Y-%m-%d').date():
+                        break
+                    i = i+1
+                if i>0:
+                    cash_list = cash_list.iloc[:,0:i+1]
+                    cash_list = cash_list.T    
+                    cash_list.iloc[0,2]='向中央银行借款净增加额(万元)'
+                    cash_list.columns = cash_list.ix[0].str.strip()
+                    cash_list = cash_list.drop(' 报告日期')
+                    cash_list = cash_list.replace('--',0,regex=True)
+                    cash_list.index.name = '报告日期'
+            
+                    self.insert_to_db_no_duplicate(cash_list,table_name, engine,True)
+                    print("Update Consolidated cash(year) %s ok!"%table_name)
+                else:
+                    print("Consolidated cash(year) %s is the latest!"%table_name)
+            else:
+                cash_list = cash_list.T    
+                cash_list.iloc[0,2]='向中央银行借款净增加额(万元)'
+                cash_list.columns = cash_list.ix[0].str.strip()
+                cash_list = cash_list.drop(' 报告日期')
+                cash_list = cash_list.drop(' ')
+                cash_list = cash_list.replace('--',0,regex=True)
+                cash_list.index.name = '报告日期'
+                self.insert_to_db_no_duplicate(cash_list,table_name, engine,True)
+                print("Create consolidated cash(year) %s ok!"%table_name)
+                
+            
+            #close the engine pool
+            engine.dispose()
     #----------------------------------------------------------------------------
     def get_table_data(self,db_name,table_name,select_column=None):
         '''
@@ -490,7 +552,10 @@ if __name__=='__main__':
     #test.update_db_consolidated_pl_year_data('000002')
     
     #test the consolidated pl season data
-    test.update_db_consolidated_pl_season_data('000002')
+    #test.update_db_consolidated_pl_season_data('000002')
+    
+    #test the consolidated cash season data
+    test.update_db_consolidated_cash_year_data('000002')
     
     print("Complete ok")
     
