@@ -14,7 +14,12 @@ hs300_list_code = DB.get_table_data(DB.str_db_stock_classification,hs300_list_ta
 #print(hs300_list_code)
 count = 0.0
 for row in hs300_list_code[hs300_list_table.c.code.name]:
-    DB.update_db_consolidated_pl_season_data(row)
+    DB.update_db_consolidated_statement_data(row,'BS','year')
+    DB.update_db_consolidated_statement_data(row,'BS','season')
+    DB.update_db_consolidated_statement_data(row,'PL','year')
+    DB.update_db_consolidated_statement_data(row,'PL','season')
+    DB.update_db_consolidated_statement_data(row,'Cash','year')
+    DB.update_db_consolidated_statement_data(row,'Cash','season')
     count = count + 1
     print("Percentage:%.1f%%"%(count/hs300_list_code.size*100))
 
