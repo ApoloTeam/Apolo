@@ -5,13 +5,15 @@
 #from sqlalchemy import func
 from sqlalchemy import create_engine
 from sqlalchemy import exc
-from config import Config
-from table_creator import Table_creator
+#from config import Config
+from modules.config import Config
+from modules.table_creator import Table_creator
 import datetime
 import tushare as ts
 import pandas as pd
 import urllib
-from StringIO import StringIO
+#from StringIO import StringIO
+from io import StringIO
 
 class Db_connector:
     '''
@@ -561,7 +563,8 @@ class Db_connector:
         print("Create table:%s ok!"%(table_consolidated.name))
 
         #get data from website(网易财经)
-        webPage =  urllib.urlopen(url_txt)
+        #webPage =  urllib.urlopen(url_txt)
+        webPage =  urllib.request.urlopen(url_txt)
         statement_data = webPage.read().decode('gbk')
         webPage.close()
         statement_File = StringIO(statement_data)
