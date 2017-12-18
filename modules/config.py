@@ -1,7 +1,7 @@
 #encoding:utf-8
 
 
-import ConfigParser
+import configparser as ConfigParser
 import os
 import platform
 
