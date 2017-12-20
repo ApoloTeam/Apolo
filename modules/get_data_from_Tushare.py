@@ -3,12 +3,11 @@ import os
 import pandas as pd
 import numpy as np
 import datetime as dt
-import sqlalchemy
 from sqlalchemy.exc import IntegrityError
-from modules.connect_database import connect_server
-from modules.connect_database import connect_engine
+from modules.connect_database import ConnectDatabase
 
-conn, cur = connect_server()
+connection = ConnectDatabase()
+conn, cur = connection.connect_server()
 
 print('version: ' + ts.__version__)
 now = dt.datetime.now()
@@ -37,7 +36,7 @@ def get_stock_basics():
         df.to_csv(os.path.join(STOCK_BASICS_DIR, '%s%s%s.csv' % (str(now.year),
                                                                  str(now.strftime('%m')),
                                                                  str(now.strftime('%d')))))
-        engine = connect_engine()
+        engine = connection.create_db_engine()
         df.to_sql('stock_basics', engine, if_exists='append', index=True)  # append, to avoid modifying field type.
     except IntegrityError as error:
         print(error)
@@ -55,7 +54,7 @@ def get_report_data(year, quarter):
         df['report_y_q'] = int('{yyyy}{q}'.format(yyyy=year, q=quarter))
         df = df.iloc[:, 0: 12]
         df.to_csv(os.path.join(REPORT_DATA_DIR, '%s_%s.csv' % (str(year), str(quarter))))
-        engine = connect_engine()
+        engine = connection.create_db_engine()
         pd.DataFrame.to_sql(df, 'report_data', engine, if_exists='append', index=False)
     except IntegrityError as error:
         print(error)
@@ -77,7 +76,7 @@ def get_profit_data(year, quarter):
         df = ts.get_profit_data(year, quarter)
         df['report_y_q'] = int('{yyyy}{q}'.format(yyyy=year, q=quarter))
         df.to_csv(os.path.join(PROFIT_DATA_DIR, '%s_%s.csv' % (str(year), str(quarter))))
-        engine = connect_engine()
+        engine = connection.create_db_engine()
         pd.DataFrame.to_sql(df, 'profit_data', engine, if_exists='append', index=False)
     except IntegrityError as error:
         print(error)
@@ -103,7 +102,7 @@ def get_industry_classified():
         df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
                                                    mm=str(now.strftime('%m')),
                                                    dd=str(now.strftime('%d')))
-        engine = connect_engine()
+        engine = connection.create_db_engine()
         df.to_sql('industry_classified', engine, if_exists='append', index=False)
     except IntegrityError as error:
         print(error)
@@ -120,7 +119,7 @@ def get_dividend_plan(year, top=3000):
         # df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
         #                                            mm=str(now.strftime('%m')),
         #                                            dd=str(now.strftime('%d')))
-        engine = connect_engine()
+        engine = connection.create_db_engine()
         df.to_sql('dividend_plan', engine, if_exists='append', index=False)
     except IntegrityError as error:
         print(error)
@@ -206,10 +205,10 @@ def test(stock_code):
 
 
 def get_history_data(code, to_year, total_year):
-    engine = connect_engine()
-    PATH = os.path.join(HISTORY_DATA_DIR, code)
-    if os.path.exists(PATH) is False:
-        os.makedirs(PATH)
+    engine = connection.create_db_engine()
+    path = os.path.join(HISTORY_DATA_DIR, code)
+    if os.path.exists(path) is False:
+        os.makedirs(path)
 
     start_year = '{yyyy}{mm}{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
     start_year_ = '{yyyy}-{mm}-{dd}'.format(yyyy=to_year - total_year, mm='01', dd='01')
@@ -227,7 +226,7 @@ def get_history_data(code, to_year, total_year):
         start = from_year
         end = '{yyyy}-12-31'.format(yyyy=from_year[0:4])
         df = ts.get_k_data(code, autype='qfq', start=start, end=end)
-        df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=start, t=from_year[0:4])))
+        df.to_csv(os.path.join(path, '{f}_{t}.csv'.format(f=start, t=from_year[0:4])))
         df.to_sql('history_data', engine, if_exists='append', index=False)
         print('-- completed.')
 
@@ -236,7 +235,7 @@ def get_history_data(code, to_year, total_year):
             start = '{yyyy}-01-01'.format(yyyy=y)
             end = '{yyyy}-12-31'.format(yyyy=y)
             df = ts.get_k_data(code, autype='qfq', start=start, end=end)
-            df.to_csv(os.path.join(PATH, '{yyyy}.csv'.format(yyyy=y)))
+            df.to_csv(os.path.join(path, '{yyyy}.csv'.format(yyyy=y)))
             df.to_sql('history_data', engine, if_exists='append', index=False)
             print('-- completed.')
 
@@ -244,7 +243,7 @@ def get_history_data(code, to_year, total_year):
         start = '{yyyy}-01-01'.format(yyyy=to_year)
         end = str(dt.date.today())
         df = ts.get_k_data(code, autype='qfq', start=start, end=end)
-        df.to_csv(os.path.join(PATH, '{f}_{t}.csv'.format(f=to_year, t=end)))
+        df.to_csv(os.path.join(path, '{f}_{t}.csv'.format(f=to_year, t=end)))
         df.to_sql('history_data', engine, if_exists='append', index=False)
         print('-- completed.')
 

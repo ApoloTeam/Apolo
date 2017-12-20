@@ -2,7 +2,6 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQuick import QQuickView
 from modules.ui_dao import UIDao
-import os
 
 
 class UI:
@@ -32,6 +31,3 @@ class UI:
 if __name__ == '__main__':
     ui = UI()
     ui.ui_main()
-
-    input("Enter the any press to exit")
-    os.system("pause")

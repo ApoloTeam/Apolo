@@ -1,9 +1,9 @@
 #encoding:utf-8
 
 from sqlalchemy import Table,Column,Integer,DECIMAL,String,Date,MetaData,ForeignKey
-#import sys
-#reload(sys)
-#sys.setdefaultencoding('utf8')
+import sys
+# reload(sys)
+# sys.setdefaultencoding('utf8')
 
 class Table_creator:
     '''
@@ -356,9 +356,3 @@ class Table_creator:
                                             Column('现金及现金等价物的净增加额(万元)',DECIMAL(20,4))                                                               
                                             )
         return table_consolidated_cash
-                                      
-                                      
-                                      
-                                      
-                                      
-                                          

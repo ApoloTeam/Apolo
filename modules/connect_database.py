@@ -1,36 +1,64 @@
 import pymysql
 from sqlalchemy import create_engine
+from modules.config import Config
 
 
-def connect_server():
-    conn = pymysql.connect(
-        host='localhost',
-        port=3306,
-        user='york',  # change your username
-        passwd='4466',  # change your password
-        db='apolo',
-        charset='utf8'
-    )
-    cur = conn.cursor()
-    return conn, cur
+class ConnectDatabase:
+    '''
+    This class is used to connect to mysql server and
+    select, insert, delete data
+    '''
+    def __init__(self):
+        # get the user configuration of db info:
+        user_config = Config()
+        user_db_param = user_config.get_config_db_info()
+        self.db_host = user_db_param['host']
+        self.db_port = user_db_param['port']
+        self.db_user = user_db_param['user']
+        self.db_pass = user_db_param['pass']
 
 
-def connect_engine():
-    # change your username
-    # change your password
-    engine = create_engine('mysql+pymysql://york:4466@localhost/apolo?charset=utf8')
-    return engine
+    def create_db_engine(self): #db_name=''
+        #  connect to mysql server
+        engine = create_engine('mysql+pymysql://' + self.db_user \
+                               + ':' + self.db_pass \
+                               + '@' + self.db_host \
+                               + ':' + self.db_port \
+                               + '/' + 'apolo' \
+                               + '?charset=utf8')  # use mysqlconnector to connect db
+        # print("engine:" + db_name + ' OK')
+        return engine
+    # def create_db_engine(self):
+        # change your username
+        # change your password
+        # engine = create_engine('mysql+pymysql://york:4466@localhost/apolo?charset=utf8')
+        # return engine
 
 
-def testing():
-    print('connect_database.py')
+    def connect_server(self):
+        conn = pymysql.connect(
+            host=self.db_host,
+            port=int(self.db_port),
+            user=self.db_user,
+            passwd=self.db_pass,
+            db='apolo',
+            charset='utf8'
+        )
+        cur = conn.cursor()
+        return conn, cur
+
+    def testing_engine(self):
+        print(self.create_db_engine())
+
+    def testing_server(self):
+        conn, cur = self.connect_server()
+        cur.execute("select * from test")
+        test = cur.fetchall()
+        print(test)
 
 
-# if __name__ == '__main__':
-#     conn, cur = connect_sever()
-#     cur.execute("select * from york")
-#     result = cur.fetchall()
-#     print(result)
-#     cur.close()
-#     conn.commit()
-#     conn.close()
+if __name__ == '__main__':
+    test = ConnectDatabase()
+    test.testing_engine()
+    test.testing_server()
+
