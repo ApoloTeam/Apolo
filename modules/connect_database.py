@@ -4,10 +4,10 @@ from modules.config import Config
 
 
 class ConnectDatabase:
-    '''
+    """
     This class is used to connect to mysql server and
     select, insert, delete data
-    '''
+    """
     def __init__(self):
         # get the user configuration of db info:
         user_config = Config()
@@ -17,23 +17,18 @@ class ConnectDatabase:
         self.db_user = user_db_param['user']
         self.db_pass = user_db_param['pass']
 
-
-    def create_db_engine(self): #db_name=''
+    def create_db_engine(self):  # db_name=''
         #  connect to mysql server
-        engine = create_engine('mysql+pymysql://' + self.db_user \
-                               + ':' + self.db_pass \
-                               + '@' + self.db_host \
-                               + ':' + self.db_port \
-                               + '/' + 'apolo' \
-                               + '?charset=utf8')  # use mysqlconnector to connect db
+        engine = create_engine(
+                                'mysql+pymysql://' + self.db_user
+                                + ':' + self.db_pass
+                                + '@' + self.db_host
+                                + ':' + self.db_port
+                                + '/' + 'apolo'
+                                + '?charset=utf8'
+                                )  # use mysqlconnector to connect db
         # print("engine:" + db_name + ' OK')
         return engine
-    # def create_db_engine(self):
-        # change your username
-        # change your password
-        # engine = create_engine('mysql+pymysql://york:4466@localhost/apolo?charset=utf8')
-        # return engine
-
 
     def connect_server(self):
         conn = pymysql.connect(
@@ -53,12 +48,10 @@ class ConnectDatabase:
     def testing_server(self):
         conn, cur = self.connect_server()
         cur.execute("select * from test")
-        test = cur.fetchall()
-        print(test)
+        print(cur.fetchall())
 
 
 if __name__ == '__main__':
     test = ConnectDatabase()
     test.testing_engine()
     test.testing_server()
-
