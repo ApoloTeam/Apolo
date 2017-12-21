@@ -1,6 +1,6 @@
 # encoding:utf-8
 import pymysql
-from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData
+from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index
 
 from modules.connect_database import ConnectDatabase
 
@@ -11,39 +11,50 @@ class CreateTable:
     """
     This class is for user to customize the tables
     """
-    @staticmethod
-    def create_table_profit_data():
-        metadata = MetaData()
-        table_profit_data = Table('profit_data', metadata,
-                                  Column('code', String(100)),
-                                  Column('name', String(100)),
-                                  Column('year', Integer()),
-                                  Column('report_date', Date()),
-                                  Column('divi', DECIMAL(10, 4)),
-                                  Column('shares', DECIMAL(10, 2))
-                                  )
-        return table_profit_data
+    connection = ConnectDatabase()
+    engine = connection.create_db_engine()
+    conn, cur = connection.connect_server()
+    metadata = MetaData()
 
     # k 线数据
-    @staticmethod
-    def create_table_k_data():
-        metadata = MetaData()
-        table_k_data = Table('k_data', metadata,
+    @classmethod
+    def create_table_k_data(cls):
+        table_k_data = Table('k_data', cls.metadata,
                              Column('date', Date(), primary_key=True),  # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
                              Column('open', DECIMAL(10, 4)),  # 开盘价
                              Column('close', DECIMAL(10, 4)),  # 收盘价
                              Column('high', DECIMAL(10, 4)),  # 最高价
                              Column('low', DECIMAL(10, 4)),  # 最低价
                              Column('volume', DECIMAL(20, 4)),  # 成交量
-                             Column('code', String(100))  # 证券代码
+                             Column('code', String(20))  # 证券代码
                              )
-        return table_k_data
+        table_k_data.create(cls.engine, checkfirst=True)  # create table
+        print("Create k_data table, ok!")
+
+    # @staticmethod
+    # def create_table_history_data():
+    #     try:
+    #         # cur.execute("drop table if exists history_data")
+    #         cur.execute("create table history_data(date date,\
+    #                     open decimal(7,3),\
+    #                     close decimal(7,3),\
+    #                     high decimal(7,3),\
+    #                     low decimal(7,3),\
+    #                     volume decimal(13,3),\
+    #                     code decimal(7,0) unsigned,\
+    #                     constraint uq_id_date UNIQUE(date,code))")
+    #         print('history_data table created.')
+    #     except pymysql.Warning as w:
+    #         print("Warning:%s" % str(w))
+    #     except pymysql.Error as e:
+    #         print("Error %d:%s" % (e.args[0], e.args[1]))
+    #
+    #     conn.commit()
 
     # 历史数据
-    @staticmethod
-    def create_table_history_data():
-        metadata = MetaData()
-        table_history_data = Table('history_data', metadata,
+    @classmethod
+    def create_table_history_data(cls):
+        table_history_data = Table('history_data', cls.metadata,
                                    Column('date', Date(), primary_key=True),
                                    # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
                                    Column('open', DECIMAL(10, 4)),  # 开盘价
@@ -61,62 +72,78 @@ class CreateTable:
                                    Column('v_ma20', DECIMAL(20, 4)),  # 20日均量
                                    Column('turnover', DECIMAL(20, 4)),  # 换手率
                                    )
-        return table_history_data
+        table_history_data.create(cls.engine, checkfirst=True)  # create table
+        print("Create history_data table, ok!")
 
     # 上证50
-    @staticmethod
-    def create_table_sz50_list():
-        metadata = MetaData()
-        table_sz50_list = Table('sz50_list', metadata,
-                                Column('code', String(100), primary_key=True),
+    @classmethod
+    def create_table_sz50_list(cls):
+        table_sz50_list = Table('sz50_list', cls.metadata,
+                                Column('code', String(20), primary_key=True),
                                 Column('name', String(100))
                                 )
-        return table_sz50_list
+        table_sz50_list.create(cls.engine, checkfirst=True)  # create table
+        print("Create sz50_list table, ok!")
 
     # 中证500
-    @staticmethod
-    def create_table_zz500_list():
-        metadata = MetaData()
-        table_zz500_list = Table('zz500_list', metadata,
-                                 Column('code', String(100), primary_key=True),
+    @classmethod
+    def create_table_zz500_list(cls):
+        table_zz500_list = Table('zz500_list', cls.metadata,
+                                 Column('code', String(20), primary_key=True),
                                  Column('name', String(100)),
                                  Column('date', Date()),
                                  Column('weight', DECIMAL(10, 4))
                                  )
-        return table_zz500_list
+        table_zz500_list.create(cls.engine, checkfirst=True)  # create table
+        print("Create zz500_list table, ok!")
 
     # 沪深300
-    @staticmethod
-    def create_table_hs300_list():
-        metadata = MetaData()
-        table_hs300_list = Table('hs300_list', metadata,
-                                 Column('code', String(100), primary_key=True),
+    @classmethod
+    def create_table_hs300_list(cls):
+        table_hs300_list = Table('hs300_list', cls.metadata,
+                                 Column('code', String(20), primary_key=True),
                                  Column('name', String(100)),
                                  Column('date', Date()),
                                  Column('weight', DECIMAL(10, 4))
                                  )
-        return table_hs300_list
+        table_hs300_list.create(cls.engine, checkfirst=True)  # create table
+        print("Create hs300_list table, ok!")
 
     # 分红数据，分配预案
-    @staticmethod
-    def create_table_dividend_data():
-        metadata = MetaData()
-        table_dividend_data = Table('dividend_data', metadata,
-                                    Column('code', String(100)),
+    @classmethod
+    def create_table_dividend_data(cls):
+        table_dividend_data = Table('dividend_data', cls.metadata,
+                                    Column('code', String(20)),
                                     Column('name', String(100)),
                                     Column('year', Integer()),
                                     Column('report_date', Date()),
                                     Column('divi', DECIMAL(10, 4)),
                                     Column('shares', DECIMAL(10, 2))
                                     )
-        return table_dividend_data
+        table_dividend_data.create(cls.engine, checkfirst=True)  # create table
+        print("Create dividend_data table, ok!")
+
+    # def create_table_dividend_plan():
+    #     try:
+    #         # cur.execute("drop table if exists history_data")
+    #         cur.execute("create table dividend_plan(code decimal(7,0) unsigned, name varchar(20),\
+    #                     year decimal(4,0) unsigned,\
+    #                     report_date varchar(10),\
+    #                     divi decimal(4,2) unsigned,\
+    #                     shares decimal(5,2) unsigned)")
+    #         print('dividend_plan table created.')
+    #     except pymysql.Warning as w:
+    #         print("Warning:%s" % str(w))
+    #     except pymysql.Error as e:
+    #         print("Error %d:%s" % (e.args[0], e.args[1]))
+    #
+    #     conn.commit()
 
     # 合并资产负债表
-    @staticmethod
-    def create_table_con_bs_season():
-        metadata = MetaData()
+    @classmethod
+    def create_table_con_bs_season(cls):
         table_con_bs_season = Table(
-                                    'con_bs_season', metadata,
+                                    'con_bs_season', cls.metadata,
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('货币资金(万元)', DECIMAL(20, 4)),
                                     Column('结算备付金(万元)', DECIMAL(20, 4)),
@@ -227,14 +254,14 @@ class CreateTable:
                                     Column('所有者权益(或股东权益)合计(万元)', DECIMAL(20, 4)),
                                     Column('负债和所有者权益(或股东权益)总计(万元)', DECIMAL(20, 4))
                                       )
-        return table_con_bs_season
+        table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
+        print("Create con_bs_season table, ok!")
 
     # 合并利润表
-    @staticmethod
-    def create_table_con_pl_season():
-        metadata = MetaData()
+    @classmethod
+    def create_table_con_pl_season(cls):
         table_con_pl_season = Table(
-                                    'con_pl_season', metadata,
+                                    'con_pl_season', cls.metadata,
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('营业总收入(万元)', DECIMAL(20, 4)),
                                     Column('营业收入(万元)', DECIMAL(20, 4)),
@@ -282,14 +309,14 @@ class CreateTable:
                                     Column('基本每股收益', DECIMAL(20, 4)),
                                     Column('稀释每股收益', DECIMAL(20, 4))
                                     )
-        return table_con_pl_season
+        table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
+        print("Create con_pl_season table, ok!")
 
     # 合并现金流量表
-    @staticmethod
-    def create_table_con_cash_season():
-        metadata = MetaData()
+    @classmethod
+    def create_table_con_cash_season(cls):
         table_con_cash_season = Table(
-                                        'con_cash_season', metadata,
+                                        'con_cash_season', cls.metadata,
                                         Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                         Column('销售商品、提供劳务收到的现金(万元)', DECIMAL(20, 4)),
                                         Column('客户存款和同业存放款项净增加额(万元)', DECIMAL(20, 4)),
@@ -381,171 +408,133 @@ class CreateTable:
                                         Column('现金等价物的期初余额(万元)', DECIMAL(20, 4)),
                                         Column('现金及现金等价物的净增加额(万元)', DECIMAL(20, 4))
                                         )
-        return table_con_cash_season
+        table_con_cash_season.create(cls.engine, checkfirst=True)  # create table
+        print("Create con_cash_season table, ok!")
 
+    @classmethod
+    def testing_server(cls):
+        cls.connection.testing_server()
 
-connect = ConnectDatabase()
-conn, cur = connect.connect_server()
+    @classmethod
+    def create_table_stock_basics(cls):
+        try:
+            # cur.execute("drop table if exists stock_basics")
+            cls.cur.execute("create table stock_basics(code int unsigned, name varchar(20),industry varchar(20), area varchar(20),\
+                        pe decimal(8,2),\
+                        outstanding decimal(10,2),\
+                        totals decimal(10,2),\
+                        totalAssets decimal(20,2),\
+                        liquidAssets decimal(20,2),\
+                        fixedAssets decimal(20,2),\
+                        reserved decimal(20,2),\
+                        reservedPerShare decimal(10,2),\
+                        esp decimal(10,4),\
+                        bvps decimal(8,2),\
+                        pb decimal(10,2),\
+                        timeToMarket int,\
+                        undp decimal(20,2),\
+                        perundp decimal(8,2),\
+                        rev decimal(10,2),\
+                        profit decimal(10,2),\
+                        gpr decimal(10,2),\
+                        npr decimal(10,2),\
+                        holders int,\
+                        createDate varchar(20))")
+            print('stock_basics table created.')
+        except pymysql.Warning as w:
+            print("Warning:%s" % str(w))
+        except pymysql.Error as e:
+            print("Error %d:%s" % (e.args[0], e.args[1]))
 
+        cls.conn.commit()
 
-def testing_server():
-    connect.testing_server()
+    @classmethod
+    def create_table_report_data(cls):
+        try:
+            # cur.execute("drop table if exists report_data")
+            cls.cur.execute("create table report_data(code decimal(7,0) unsigned, name varchar(20),eps decimal(10,4),\
+                        eps_yoy decimal(10,2),\
+                        bvps decimal(8,2),\
+                        roe decimal(8,2),\
+                        epcf decimal(8,2),\
+                        net_profits decimal(12,2),\
+                        profits_yoy decimal(12,2),\
+                        distrib varchar(50),\
+                        report_date varchar(10),\
+                        report_y_q decimal(6,0) unsigned)")
+            print('report_data table created.')
+        except pymysql.Warning as w:
+            print("Warning:%s" % str(w))
+        except pymysql.Error as e:
+            print("Error %d:%s" % (e.args[0], e.args[1]))
 
+        cls.conn.commit()
 
-def create_table_stock_basics():
-    try:
-        # cur.execute("drop table if exists stock_basics")
-        cur.execute("create table stock_basics(code int unsigned, name varchar(20),industry varchar(20), area varchar(20),\
-                    pe decimal(8,2),\
-                    outstanding decimal(10,2),\
-                    totals decimal(10,2),\
-                    totalAssets decimal(20,2),\
-                    liquidAssets decimal(20,2),\
-                    fixedAssets decimal(20,2),\
-                    reserved decimal(20,2),\
-                    reservedPerShare decimal(10,2),\
-                    esp decimal(10,4),\
-                    bvps decimal(8,2),\
-                    pb decimal(10,2),\
-                    timeToMarket int,\
-                    undp decimal(20,2),\
-                    perundp decimal(8,2),\
-                    rev decimal(10,2),\
-                    profit decimal(10,2),\
-                    gpr decimal(10,2),\
-                    npr decimal(10,2),\
-                    holders int,\
-                    createDate varchar(20))")
-        print('stock_basics table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
+    # 盈利能力
+    @classmethod
+    def create_table_profit_data(cls):
+        try:
+            # cur.execute("drop table if exists profit_data")
+            cls.cur.execute("create table profit_data(code decimal(7,0) unsigned, name varchar(20),\
+                        roe decimal(8,2),\
+                        net_profit_ratio decimal(8,2),\
+                        gross_profit_rate decimal(10,4),\
+                        net_profits decimal(10,4),\
+                        eps decimal(8,4),\
+                        business_income decimal(15,4),\
+                        bips decimal(8,4),\
+                        report_y_q decimal(6,0) unsigned)")
+            print('profit_data table created.')
+        except pymysql.Warning as w:
+            print("Warning:%s" % str(w))
+        except pymysql.Error as e:
+            print("Error %d:%s" % (e.args[0], e.args[1]))
 
-    conn.commit()
+        cls.conn.commit()
 
+    @classmethod
+    def create_industry_classified(cls):
+        try:
+            # cur.execute("drop table if exists industry_classified")
+            cls.cur.execute("create table industry_classified(code decimal(7,0) unsigned, name varchar(20),\
+                        c_name varchar(20),\
+                        createDate varchar(20))")
+            print('industry_classified table created.')
+        except pymysql.Warning as w:
+            print("Warning:%s" % str(w))
+        except pymysql.Error as e:
+            print("Error %d:%s" % (e.args[0], e.args[1]))
 
-def create_table_report_data():
-    try:
-        # cur.execute("drop table if exists report_data")
-        cur.execute("create table report_data(code decimal(7,0) unsigned, name varchar(20),eps decimal(10,4),\
-                    eps_yoy decimal(10,2),\
-                    bvps decimal(8,2),\
-                    roe decimal(8,2),\
-                    epcf decimal(8,2),\
-                    net_profits decimal(12,2),\
-                    profits_yoy decimal(12,2),\
-                    distrib varchar(50),\
-                    report_date varchar(10),\
-                    report_y_q decimal(6,0) unsigned)")
-        print('report_data table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
+        cls.conn.commit()
 
-    conn.commit()
+    @classmethod
+    def create_stock_code(cls):  # The table is used for checking which stock had been import already.
+        try:
+            # cur.execute("drop table if exists industry_classified")
+            cls.cur.execute(TBL_STOCK_CODE)
+            print('stock_code table created.')
+        except pymysql.Warning as w:
+            print("Warning:%s" % str(w))
+        except pymysql.Error as e:
+            print("Error %d:%s" % (e.args[0], e.args[1]))
 
+        cls.conn.commit()
 
-def create_table_profit_data():
-    try:
-        # cur.execute("drop table if exists profit_data")
-        cur.execute("create table profit_data(code decimal(7,0) unsigned, name varchar(20),\
-                    roe decimal(8,2),\
-                    net_profit_ratio decimal(8,2),\
-                    gross_profit_rate decimal(10,4),\
-                    net_profits decimal(10,4),\
-                    eps decimal(8,4),\
-                    business_income decimal(15,4),\
-                    bips decimal(8,4),\
-                    report_y_q decimal(6,0) unsigned)")
-        print('profit_data table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
-
-    conn.commit()
-
-
-def create_table_history_data():
-    try:
-        # cur.execute("drop table if exists history_data")
-        cur.execute("create table history_data(date date,\
-                    open decimal(7,3),\
-                    close decimal(7,3),\
-                    high decimal(7,3),\
-                    low decimal(7,3),\
-                    volume decimal(13,3),\
-                    code decimal(7,0) unsigned,\
-                    constraint uq_id_date UNIQUE(date,code))")
-        print('history_data table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
-
-    conn.commit()
-
-
-def create_industry_classified():
-    try:
-        # cur.execute("drop table if exists industry_classified")
-        cur.execute("create table industry_classified(code decimal(7,0) unsigned, name varchar(20),\
-                    c_name varchar(20),\
-                    createDate varchar(20))")
-        print('industry_classified table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
-
-    conn.commit()
-
-
-def create_stock_code():  # The table is used for checking which stock had been import already.
-    try:
-        # cur.execute("drop table if exists industry_classified")
-        cur.execute(TBL_STOCK_CODE)
-        print('stock_code table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
-
-    conn.commit()
-
-
-def create_table_dividend_plan():
-    try:
-        # cur.execute("drop table if exists history_data")
-        cur.execute("create table dividend_plan(code decimal(7,0) unsigned, name varchar(20),\
-                    year decimal(4,0) unsigned,\
-                    report_date varchar(10),\
-                    divi decimal(4,2) unsigned,\
-                    shares decimal(5,2) unsigned)")
-        print('dividend_plan table created.')
-    except pymysql.Warning as w:
-        print("Warning:%s" % str(w))
-    except pymysql.Error as e:
-        print("Error %d:%s" % (e.args[0], e.args[1]))
-
-    conn.commit()
-
-
-def create_tables():
-    create_table_stock_basics()
-    create_table_report_data()
-    create_table_profit_data()
-    create_table_history_data()
-    create_industry_classified()
-    create_stock_code()
-    conn.close()
+    @classmethod
+    def create_tables(cls):
+        cls.create_table_stock_basics()
+        cls.create_table_report_data()
+        cls.create_table_profit_data()
+        cls.create_table_history_data()
+        cls.create_industry_classified()
+        cls.create_stock_code()
+        cls.conn.close()
 
 
 if __name__ == "__main__":
     # create_tables()
     # create_table_dividend_plan()
-    testing_server()
+    # testing_server()
     CreateTable.create_table_k_data()
-    CreateTable.create_table_profit_data()
+    # CreateTable.create_table_profit_data()
+
