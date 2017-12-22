@@ -1,6 +1,6 @@
 # encoding:utf-8
 import pymysql
-from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index
+from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index, PrimaryKeyConstraint
 
 from modules.connect_database import ConnectDatabase
 
