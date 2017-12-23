@@ -1,6 +1,7 @@
 # encoding:utf-8
 import pymysql
-from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index, PrimaryKeyConstraint
+from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index,\
+                       PrimaryKeyConstraint,ForeignKeyConstraint
 
 from modules.connect_database import ConnectDatabase
 
@@ -20,13 +21,14 @@ class CreateTable:
     @classmethod
     def create_table_k_data(cls):
         table_k_data = Table('k_data', cls.metadata,
-                             Column('date', Date(), primary_key=True),  # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
+                             Column('date', Date()),  # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
                              Column('open', DECIMAL(10, 4)),  # 开盘价
                              Column('close', DECIMAL(10, 4)),  # 收盘价
                              Column('high', DECIMAL(10, 4)),  # 最高价
                              Column('low', DECIMAL(10, 4)),  # 最低价
                              Column('volume', DECIMAL(20, 4)),  # 成交量
-                             Column('code', String(20))  # 证券代码
+                             Column('code', String(20)),  # 证券代码
+                             PrimaryKeyConstraint('code', 'date')
                              )
         table_k_data.create(cls.engine, checkfirst=True)  # create table
         print("Create k_data table, ok!")
@@ -51,11 +53,12 @@ class CreateTable:
     #
     #     conn.commit()
 
-    # 历史数据
+    # 旧接口历史数据
     @classmethod
     def create_table_history_data(cls):
         table_history_data = Table('history_data', cls.metadata,
-                                   Column('date', Date(), primary_key=True),
+                                   Column('code', String(20)),
+                                   Column('date', Date()),
                                    # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
                                    Column('open', DECIMAL(10, 4)),  # 开盘价
                                    Column('high', DECIMAL(10, 4)),  # 最高价
@@ -71,6 +74,7 @@ class CreateTable:
                                    Column('v_ma10', DECIMAL(20, 4)),  # 10日均量
                                    Column('v_ma20', DECIMAL(20, 4)),  # 20日均量
                                    Column('turnover', DECIMAL(20, 4)),  # 换手率
+                                   PrimaryKeyConstraint('code', 'date')
                                    )
         table_history_data.create(cls.engine, checkfirst=True)  # create table
         print("Create history_data table, ok!")
@@ -90,9 +94,7 @@ class CreateTable:
     def create_table_zz500_list(cls):
         table_zz500_list = Table('zz500_list', cls.metadata,
                                  Column('code', String(20), primary_key=True),
-                                 Column('name', String(100)),
-                                 Column('date', Date()),
-                                 Column('weight', DECIMAL(10, 4))
+                                 Column('name', String(100))
                                  )
         table_zz500_list.create(cls.engine, checkfirst=True)  # create table
         print("Create zz500_list table, ok!")
@@ -118,7 +120,8 @@ class CreateTable:
                                     Column('year', Integer()),
                                     Column('report_date', Date()),
                                     Column('divi', DECIMAL(10, 4)),
-                                    Column('shares', DECIMAL(10, 2))
+                                    Column('shares', DECIMAL(10, 2)),
+                                    PrimaryKeyConstraint('code', 'report_date')
                                     )
         table_dividend_data.create(cls.engine, checkfirst=True)  # create table
         print("Create dividend_data table, ok!")
@@ -139,6 +142,7 @@ class CreateTable:
     #
     #     conn.commit()
 
+    #TODO: "code" column left, must be added later
     # 合并资产负债表
     @classmethod
     def create_table_con_bs_season(cls):
@@ -257,6 +261,7 @@ class CreateTable:
         table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_bs_season table, ok!")
 
+    # TODO: "code" column left, must be added later
     # 合并利润表
     @classmethod
     def create_table_con_pl_season(cls):
@@ -312,6 +317,7 @@ class CreateTable:
         table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_pl_season table, ok!")
 
+    # TODO: "code" column left, must be added later
     # 合并现金流量表
     @classmethod
     def create_table_con_cash_season(cls):
@@ -535,6 +541,6 @@ if __name__ == "__main__":
     # create_tables()
     # create_table_dividend_plan()
     # testing_server()
-    CreateTable.create_table_k_data()
+    CreateTable.create_table_dividend_data()
     # CreateTable.create_table_profit_data()
 
