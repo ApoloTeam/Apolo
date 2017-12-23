@@ -55,7 +55,7 @@ class AdminDatabase:
         # set the table name
         tbl_k_data = 'k_data'
         # get the start date
-        result = cls.engine.execute("select max(date) from %s where code=%s" % (tbl_k_data, stock_code))
+        result = cls.engine.execute("select max(date) from %s where code=\'%s\'" % (tbl_k_data, stock_code))
         last_date = result.fetchone()[0]
         if last_date is None:
             start_date = datetime.date(2000, 1, 1)  # default start date
@@ -74,14 +74,15 @@ class AdminDatabase:
         print('start date:' + str_start_date + ' ; end date:' + str_end_date)
         # get the k_data from Tushare
         k_data = ts.get_k_data(code=stock_code, start=str_start_date, end=str_end_date)
-        # print(k_data)
 
         # insert data to database
         cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
-
+        print('%s updated, done' % stock_code)
         # close the engine pool
         cls.engine.dispose()
 
+    # TODO: Only hs300, sz50,zz500 left including create table and update data function
+    # TODO: 2017-12-24 hs300 api doesn't work
     @classmethod
     def update_hs300_list(cls):
         # update hs300(沪深300) list:
@@ -89,13 +90,16 @@ class AdminDatabase:
         # get the list from Tushare
         hs300_list = ts.get_hs300s()
         print('get hs300_list data ok!')
+        print(hs300_list)
         # insert list
-        cls.insert_to_db_no_duplicate(hs300_list, tbl_hs300_list, cls.engine)
+        # cls.insert_to_db_no_duplicate(hs300_list, tbl_hs300_list, cls.engine)
         print("Insert hs300_list data ok!")
 
         # close the engine pool
         cls.engine.dispose()
 
+    # TODO: Update "code" column. raw data EXCLUDE code so that need to update independtly
+    # 旧接口 - 历史数据
     @classmethod
     def update_db_history_data(cls, stock_code):
         tbl_history_data = 'history_data'
@@ -153,6 +157,7 @@ class AdminDatabase:
             # insert data to database
             cls.insert_to_db_no_duplicate(dividend_data, tbl_dividend_data)
 
+        print("Updated, done")
         # close the engine pool
         cls.engine.dispose()
 
@@ -286,4 +291,6 @@ class AdminDatabase:
 
 if __name__ == '__main__':
     # test = AdminDatabase()
-    AdminDatabase.testing()
+    # AdminDatabase.update_hs300_list()
+    s300_list = ts.get_hs300s()
+    print(s300_list)
