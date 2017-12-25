@@ -1,13 +1,12 @@
-# encoding:utf-8
 import pymysql
-from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, ForeignKey, Index,\
-                       PrimaryKeyConstraint,ForeignKeyConstraint
+from sqlalchemy import Table, Column, Integer, DECIMAL, String, Date, MetaData, PrimaryKeyConstraint
 
 from modules.connect_database import ConnectDatabase
 
 TBL_STOCK_CODE = "create table stock_code(code decimal(7,0) unsigned PRIMARY KEY)"
 
 
+# TODO: Take care of decimal of each field, make sure enough places to get the data from API.
 class CreateTable:
     """
     This class is for user to customize the tables
@@ -142,12 +141,12 @@ class CreateTable:
     #
     #     conn.commit()
 
-    #TODO: "code" column left, must be added later
     # 合并资产负债表
     @classmethod
     def create_table_con_bs_season(cls):
         table_con_bs_season = Table(
                                     'con_bs_season', cls.metadata,
+                                    Column('code', String(20), primary_key=True),
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('货币资金(万元)', DECIMAL(20, 4)),
                                     Column('结算备付金(万元)', DECIMAL(20, 4)),
@@ -261,12 +260,12 @@ class CreateTable:
         table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_bs_season table, ok!")
 
-    # TODO: "code" column left, must be added later
     # 合并利润表
     @classmethod
     def create_table_con_pl_season(cls):
         table_con_pl_season = Table(
                                     'con_pl_season', cls.metadata,
+                                    Column('code', String(20), primary_key=True),
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('营业总收入(万元)', DECIMAL(20, 4)),
                                     Column('营业收入(万元)', DECIMAL(20, 4)),
@@ -317,12 +316,12 @@ class CreateTable:
         table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_pl_season table, ok!")
 
-    # TODO: "code" column left, must be added later
     # 合并现金流量表
     @classmethod
     def create_table_con_cash_season(cls):
         table_con_cash_season = Table(
                                         'con_cash_season', cls.metadata,
+                                        Column('code', String(20), primary_key=True),
                                         Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                         Column('销售商品、提供劳务收到的现金(万元)', DECIMAL(20, 4)),
                                         Column('客户存款和同业存放款项净增加额(万元)', DECIMAL(20, 4)),
@@ -538,9 +537,4 @@ class CreateTable:
 
 
 if __name__ == "__main__":
-    # create_tables()
-    # create_table_dividend_plan()
-    # testing_server()
-    CreateTable.create_table_dividend_data()
-    # CreateTable.create_table_profit_data()
-
+    CreateTable.testing_server()
