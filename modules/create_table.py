@@ -31,6 +31,7 @@ class CreateTable:
                              )
         table_k_data.create(cls.engine, checkfirst=True)  # create table
         print("Create k_data table, ok!")
+        return table_k_data
 
     # @staticmethod
     # def create_table_history_data():
@@ -77,6 +78,7 @@ class CreateTable:
                                    )
         table_history_data.create(cls.engine, checkfirst=True)  # create table
         print("Create history_data table, ok!")
+        return table_history_data
 
     # 上证50
     @classmethod
@@ -87,6 +89,7 @@ class CreateTable:
                                 )
         table_sz50_list.create(cls.engine, checkfirst=True)  # create table
         print("Create sz50_list table, ok!")
+        return table_sz50_list
 
     # 中证500
     @classmethod
@@ -97,6 +100,7 @@ class CreateTable:
                                  )
         table_zz500_list.create(cls.engine, checkfirst=True)  # create table
         print("Create zz500_list table, ok!")
+        return table_zz500_list
 
     # 沪深300
     @classmethod
@@ -109,6 +113,7 @@ class CreateTable:
                                  )
         table_hs300_list.create(cls.engine, checkfirst=True)  # create table
         print("Create hs300_list table, ok!")
+        return table_hs300_list
 
     # 分红数据，分配预案
     @classmethod
@@ -124,6 +129,7 @@ class CreateTable:
                                     )
         table_dividend_data.create(cls.engine, checkfirst=True)  # create table
         print("Create dividend_data table, ok!")
+        return table_dividend_data
 
     # def create_table_dividend_plan():
     #     try:
@@ -259,6 +265,7 @@ class CreateTable:
                                       )
         table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_bs_season table, ok!")
+        return table_con_bs_season
 
     # 合并利润表
     @classmethod
@@ -315,6 +322,7 @@ class CreateTable:
                                     )
         table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_pl_season table, ok!")
+        return table_con_pl_season
 
     # 合并现金流量表
     @classmethod
@@ -415,6 +423,7 @@ class CreateTable:
                                         )
         table_con_cash_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_cash_season table, ok!")
+        return table_con_cash_season
 
     @classmethod
     def testing_server(cls):

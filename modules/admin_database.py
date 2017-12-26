@@ -98,7 +98,23 @@ class AdminDatabase:
         # close the engine pool
         cls.engine.dispose()
 
-    # TODO: Update "code" column. raw data EXCLUDE code so that need to update independtly
+    @classmethod
+    def update_sz50_list(cls):
+        # update hs300(沪深300) list:
+        tbl_sz50_list = 'sz50_list'
+        # get the list from Tushare
+        #TODO: API has issue
+        sz50_list = ts.get_sz50s()
+        print('get sz50_list data ok!')
+        print(sz50_list)
+        # insert list
+        cls.insert_to_db_no_duplicate(sz50_list, tbl_sz50_list, cls.engine)
+        print("Insert sz50_list data ok!")
+
+        # close the engine pool
+        cls.engine.dispose()
+
+    # TODO: Update "code" column. raw data EXCLUDE code so that need to update independently
     # 旧接口 - 历史数据
     @classmethod
     def update_db_history_data(cls, stock_code):
@@ -221,58 +237,59 @@ class AdminDatabase:
         # get the start date
         result = cls.engine.execute("select max(%s) from %s" % ('报告日期', table_name))
         last_date = result.fetchone()[0]
+        print(statement_list)
 
-        if last_date is not None:
-            row_data = statement_list.columns[1:statement_list.columns.size - 1]  # 不包括第一和最后一列，因为第一列为报告日期，最后一列为空行
-            i = 0
-            for str_date in row_data:
-                if last_date >= datetime.datetime.strptime(str_date, '%Y-%m-%d').date():
-                    break
-                i = i + 1
-            if i > 0:
-                statement_list = statement_list.iloc[:, 0:i + 1]
-                statement_list = statement_list.T
-                if statement_type == 'Cash':
-                    statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
-
-                statement_list.columns = statement_list.ix[0].str.strip()
-
-                if statement_type == 'Cash':
-                    statement_list = statement_list.drop(' 报告日期')  # Cash statement 的特殊情况
-                else:
-                    statement_list = statement_list.drop('报告日期')
-
-                statement_list = statement_list.replace('--', 0, regex=True)
-                statement_list.index.name = '报告日期'
-
-                cls.insert_to_db_no_duplicate(statement_list, table_name, True)
-                print("Update Consolidated statement %s %s ok!" % (statement_type, table_name))
-            else:
-                print("Consolidated statement %s %s is the latest!" % (statement_type, table_name))
-        else:
-            statement_list = statement_list.T
-            if statement_type == 'Cash':
-                statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
-
-            statement_list.columns = statement_list.ix[0].str.strip()
-
-            if statement_type == 'Cash':
-                statement_list = statement_list.drop(' 报告日期')
-                statement_list = statement_list.drop(' ')  # Cash statement 的特殊情况
-            else:
-                statement_list = statement_list.drop('报告日期')
-
-            statement_list = statement_list.replace('--', 0, regex=True)  # 原始数据中没有的数据以'--'表示
-            statement_list.index.name = '报告日期'
-            cls.insert_to_db_no_duplicate(statement_list, table_name, True)
-
-            if statement_period == 'year':
-                print("Create consolidated statement(%s year) %s ok!" % (statement_type, table_name))
-            else:
-                print("Create consolidated statement(%s season) %s ok!" % (statement_type, table_name))
-
-        # close the engine pool
-        cls.engine.dispose()
+        # if last_date is not None:
+        #     row_data = statement_list.columns[1:statement_list.columns.size - 1]  # 不包括第一和最后一列，因为第一列为报告日期，最后一列为空行
+        #     i = 0
+        #     for str_date in row_data:
+        #         if last_date >= datetime.datetime.strptime(str_date, '%Y-%m-%d').date():
+        #             break
+        #         i = i + 1
+        #     if i > 0:
+        #         statement_list = statement_list.iloc[:, 0:i + 1]
+        #         statement_list = statement_list.T
+        #         if statement_type == 'Cash':
+        #             statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
+        #
+        #         statement_list.columns = statement_list.ix[0].str.strip()
+        #
+        #         if statement_type == 'Cash':
+        #             statement_list = statement_list.drop(' 报告日期')  # Cash statement 的特殊情况
+        #         else:
+        #             statement_list = statement_list.drop('报告日期')
+        #
+        #         statement_list = statement_list.replace('--', 0, regex=True)
+        #         statement_list.index.name = '报告日期'
+        #
+        #         # cls.insert_to_db_no_duplicate(statement_list, table_name, True)
+        #         print("Update Consolidated statement %s %s ok!" % (statement_type, table_name))
+        #     else:
+        #         print("Consolidated statement %s %s is the latest!" % (statement_type, table_name))
+        # else:
+        #     statement_list = statement_list.T
+        #     if statement_type == 'Cash':
+        #         statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
+        #
+        #     statement_list.columns = statement_list.ix[0].str.strip()
+        #
+        #     if statement_type == 'Cash':
+        #         statement_list = statement_list.drop(' 报告日期')
+        #         statement_list = statement_list.drop(' ')  # Cash statement 的特殊情况
+        #     else:
+        #         statement_list = statement_list.drop('报告日期')
+        #
+        #     statement_list = statement_list.replace('--', 0, regex=True)  # 原始数据中没有的数据以'--'表示
+        #     statement_list.index.name = '报告日期'
+        #     # cls.insert_to_db_no_duplicate(statement_list, table_name, True)
+        #
+        #     if statement_period == 'year':
+        #         print("Create consolidated statement(%s year) %s ok!" % (statement_type, table_name))
+        #     else:
+        #         print("Create consolidated statement(%s season) %s ok!" % (statement_type, table_name))
+        #
+        # # close the engine pool
+        # cls.engine.dispose()
 
     # ----------------------------------------------------------------------------
     @classmethod
@@ -280,17 +297,13 @@ class AdminDatabase:
         """
         get the table data
         """
-        # engine = self.create_db_engine(db_name)
         result = pd.read_sql_table(table_name, cls.engine, columns=select_column)
+        # result = pd.read_sql('select {col} from {tbl}'.format(col=select_column, tbl=table_name), cls.engine)
         cls.engine.dispose()
         return result
 
-    # def select_table_data(self,db_name):
-    # engine = self.create_db_engine(db_name)
-
 
 if __name__ == '__main__':
-    # test = AdminDatabase()
-    # AdminDatabase.update_hs300_list()
-    s300_list = ts.get_hs300s()
-    print(s300_list)
+    # result = AdminDatabase.get_table_data('k_data', 'code')
+    # print(result)
+    ts.get_zz500s()
