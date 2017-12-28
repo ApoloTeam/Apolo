@@ -1,10 +1,5 @@
-# encoding:utf-8
-# from modules import db_connector
 from modules.create_table import CreateTable
 from modules.admin_database import AdminDatabase
-
-# import sys
-# sys.path.append('../')
 
 # get hs300 list
 hs300_list_table = CreateTable.create_table_hs300_list()

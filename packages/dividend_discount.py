@@ -5,10 +5,10 @@ import glob
 import csv
 import numpy as np, matplotlib.pyplot as plt, scipy
 
-import pymysql
-from Apolo.modules.connect_database import connect_server
+from modules.connect_database import ConnectDatabase
 
-conn, cur = connect_server
+connection = ConnectDatabase()
+conn, cur = connection.connect_server()
 
 if __name__ == '__main__':
     # cur.execute("insert into york(name) values(%s)",('Chris'))
@@ -19,6 +19,3 @@ if __name__ == '__main__':
     cur.close()
     conn.commit()
     conn.close()
-
-
-

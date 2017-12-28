@@ -152,7 +152,6 @@ class CreateTable:
     def create_table_con_bs_season(cls):
         table_con_bs_season = Table(
                                     'con_bs_season', cls.metadata,
-                                    Column('code', String(20), primary_key=True),
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('货币资金(万元)', DECIMAL(20, 4)),
                                     Column('结算备付金(万元)', DECIMAL(20, 4)),
@@ -261,7 +260,8 @@ class CreateTable:
                                     Column('归属于母公司股东权益合计(万元)', DECIMAL(20, 4)),
                                     Column('少数股东权益(万元)', DECIMAL(20, 4)),
                                     Column('所有者权益(或股东权益)合计(万元)', DECIMAL(20, 4)),
-                                    Column('负债和所有者权益(或股东权益)总计(万元)', DECIMAL(20, 4))
+                                    Column('负债和所有者权益(或股东权益)总计(万元)', DECIMAL(20, 4)),
+                                    Column('code', String(20), primary_key=True)
                                       )
         table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_bs_season table, ok!")
@@ -272,7 +272,6 @@ class CreateTable:
     def create_table_con_pl_season(cls):
         table_con_pl_season = Table(
                                     'con_pl_season', cls.metadata,
-                                    Column('code', String(20), primary_key=True),
                                     Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                     Column('营业总收入(万元)', DECIMAL(20, 4)),
                                     Column('营业收入(万元)', DECIMAL(20, 4)),
@@ -318,7 +317,8 @@ class CreateTable:
                                     Column('被合并方在合并前实现净利润(万元)', DECIMAL(20, 4)),
                                     Column('少数股东损益(万元)', DECIMAL(20, 4)),
                                     Column('基本每股收益', DECIMAL(20, 4)),
-                                    Column('稀释每股收益', DECIMAL(20, 4))
+                                    Column('稀释每股收益', DECIMAL(20, 4)),
+                                    Column('code', String(20), primary_key=True)
                                     )
         table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_pl_season table, ok!")
@@ -329,7 +329,6 @@ class CreateTable:
     def create_table_con_cash_season(cls):
         table_con_cash_season = Table(
                                         'con_cash_season', cls.metadata,
-                                        Column('code', String(20), primary_key=True),
                                         Column('报告日期', Date(), primary_key=True),  # 时间和日期
                                         Column('销售商品、提供劳务收到的现金(万元)', DECIMAL(20, 4)),
                                         Column('客户存款和同业存放款项净增加额(万元)', DECIMAL(20, 4)),
@@ -419,7 +418,8 @@ class CreateTable:
                                         Column('现金的期初余额(万元)', DECIMAL(20, 4)),
                                         Column('现金等价物的期末余额(万元)', DECIMAL(20, 4)),
                                         Column('现金等价物的期初余额(万元)', DECIMAL(20, 4)),
-                                        Column('现金及现金等价物的净增加额(万元)', DECIMAL(20, 4))
+                                        Column('现金及现金等价物的净增加额(万元)', DECIMAL(20, 4)),
+                                        Column('code', String(20), primary_key=True)
                                         )
         table_con_cash_season.create(cls.engine, checkfirst=True)  # create table
         print("Create con_cash_season table, ok!")
@@ -536,14 +536,16 @@ class CreateTable:
 
     @classmethod
     def create_tables(cls):
-        cls.create_table_stock_basics()
-        cls.create_table_report_data()
-        cls.create_table_profit_data()
-        cls.create_table_history_data()
-        cls.create_industry_classified()
-        cls.create_stock_code()
-        cls.conn.close()
+        # cls.create_table_stock_basics()
+        # cls.create_table_report_data()
+        # cls.create_table_profit_data()
+        # cls.create_table_history_data()
+        # cls.create_industry_classified()
+        # cls.create_stock_code()
+        cls.create_table_con_bs_season()
+        cls.create_table_con_cash_season()
+        cls.create_table_con_pl_season()
 
 
 if __name__ == "__main__":
-    CreateTable.testing_server()
+    CreateTable.create_tables()

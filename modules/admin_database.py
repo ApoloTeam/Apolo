@@ -103,7 +103,7 @@ class AdminDatabase:
         # update hs300(沪深300) list:
         tbl_sz50_list = 'sz50_list'
         # get the list from Tushare
-        #TODO: API has issue
+        # TODO: API has issue
         sz50_list = ts.get_sz50s()
         print('get sz50_list data ok!')
         print(sz50_list)
@@ -178,8 +178,7 @@ class AdminDatabase:
         cls.engine.dispose()
 
     @classmethod
-    def update_db_consolidated_statement_data(cls, stock_num, statement_type, statement_period):
-
+    def update_db_consolidated_statement_data(cls, stock_code, statement_type):
         """
         Download the statement data from internet and upload to the mysql DB
 
@@ -188,44 +187,24 @@ class AdminDatabase:
         statement_type: 'BS' -> Balance Sheet ; 'PL' -> Profit & Loss ; 'Cash' ->  Cash
         statement_period: 'year' -> yearly statement ; 'season' -> per season statement
 
+        Note: if only get year data, can use below link
+        "http://quotes.money.163.com/service/zcfzb_" + str(stock_num) + ".html?type=year"
         """
         # set the table name
         table_name = ''
         url_txt = ''
 
-        if statement_type == 'BS' and statement_period == 'year':
-            # engine = self.create_db_engine(self.str_db_consolidated_bs_year)
-            # table_consolidated = self.table_creator.get_consolidated_bs(table_name)
-            url_txt = "http://quotes.money.163.com/service/zcfzb_" + str(stock_num) + ".html?type=year"
-            table_name = 'con_bs_year'
-        elif statement_type == 'BS' and statement_period == 'season':
-            # engine = self.create_db_engine(self.str_db_consolidated_bs_season)
-            # table_consolidated = self.table_creator.get_consolidated_bs(table_name)
-            url_txt = "http://quotes.money.163.com/service/zcfzb_" + str(stock_num) + ".html"
+        if statement_type == 'BS':
+            url_txt = "http://quotes.money.163.com/service/zcfzb_" + str(stock_code) + ".html"
             table_name = 'con_bs_season'
-        elif statement_type == 'PL' and statement_period == 'year':
-            # engine = self.create_db_engine(self.str_db_consolidated_pl_year)
-            # table_consolidated = self.table_creator.get_consolidated_pl(table_name)
-            url_txt = "http://quotes.money.163.com/service/lrb_" + str(stock_num) + ".html?type=year"
-            table_name = 'con_pl_year'
-        elif statement_type == 'PL' and statement_period == 'season':
-            # engine = self.create_db_engine(self.str_db_consolidated_pl_season)
-            # table_consolidated = self.table_creator.get_consolidated_pl(table_name)
-            url_txt = "http://quotes.money.163.com/service/lrb_" + str(stock_num) + ".html"
-            table_name = 'con_pl_season'
-        elif statement_type == 'Cash' and statement_period == 'year':
-            # engine = self.create_db_engine(self.str_db_consolidated_cash_year)
-            # table_consolidated = self.table_creator.get_consolidated_cash(table_name)
-            url_txt = "http://quotes.money.163.com/service/xjllb_" + str(stock_num) + ".html?type=year"
-            table_name = 'con_cash_year'
-        elif statement_type == 'Cash' and statement_period == 'season':
-            # engine = self.create_db_engine(self.str_db_consolidated_cash_season)
-            # table_consolidated = self.table_creator.get_consolidated_cash(table_name)
-            url_txt = "http://quotes.money.163.com/service/xjllb_" + str(stock_num) + ".html"
-            table_name = 'con_cash_season'
 
-        # table_consolidated.create(self.engine, checkfirst=True)  # create table
-        # print("Create table:%s ok!" % table_consolidated.name)
+        elif statement_type == 'PL':
+            url_txt = "http://quotes.money.163.com/service/lrb_" + str(stock_code) + ".html"
+            table_name = 'con_pl_season'
+
+        elif statement_type == 'Cash':
+            url_txt = "http://quotes.money.163.com/service/xjllb_" + str(stock_code) + ".html"
+            table_name = 'con_cash_season'
 
         # get data from website(网易财经)
         web_page = urllib.request.urlopen(url_txt)
@@ -235,61 +214,58 @@ class AdminDatabase:
         statement_list_tmp = pd.read_csv(statement_file)
         statement_list = statement_list_tmp.dropna(axis=1)
         # get the start date
-        result = cls.engine.execute("select max(%s) from %s" % ('报告日期', table_name))
+        result = cls.engine.execute("select max(%s) from %s where code=\'%s\'" % ('报告日期', table_name, stock_code))
         last_date = result.fetchone()[0]
-        print(statement_list)
 
-        # if last_date is not None:
-        #     row_data = statement_list.columns[1:statement_list.columns.size - 1]  # 不包括第一和最后一列，因为第一列为报告日期，最后一列为空行
-        #     i = 0
-        #     for str_date in row_data:
-        #         if last_date >= datetime.datetime.strptime(str_date, '%Y-%m-%d').date():
-        #             break
-        #         i = i + 1
-        #     if i > 0:
-        #         statement_list = statement_list.iloc[:, 0:i + 1]
-        #         statement_list = statement_list.T
-        #         if statement_type == 'Cash':
-        #             statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
-        #
-        #         statement_list.columns = statement_list.ix[0].str.strip()
-        #
-        #         if statement_type == 'Cash':
-        #             statement_list = statement_list.drop(' 报告日期')  # Cash statement 的特殊情况
-        #         else:
-        #             statement_list = statement_list.drop('报告日期')
-        #
-        #         statement_list = statement_list.replace('--', 0, regex=True)
-        #         statement_list.index.name = '报告日期'
-        #
-        #         # cls.insert_to_db_no_duplicate(statement_list, table_name, True)
-        #         print("Update Consolidated statement %s %s ok!" % (statement_type, table_name))
-        #     else:
-        #         print("Consolidated statement %s %s is the latest!" % (statement_type, table_name))
-        # else:
-        #     statement_list = statement_list.T
-        #     if statement_type == 'Cash':
-        #         statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
-        #
-        #     statement_list.columns = statement_list.ix[0].str.strip()
-        #
-        #     if statement_type == 'Cash':
-        #         statement_list = statement_list.drop(' 报告日期')
-        #         statement_list = statement_list.drop(' ')  # Cash statement 的特殊情况
-        #     else:
-        #         statement_list = statement_list.drop('报告日期')
-        #
-        #     statement_list = statement_list.replace('--', 0, regex=True)  # 原始数据中没有的数据以'--'表示
-        #     statement_list.index.name = '报告日期'
-        #     # cls.insert_to_db_no_duplicate(statement_list, table_name, True)
-        #
-        #     if statement_period == 'year':
-        #         print("Create consolidated statement(%s year) %s ok!" % (statement_type, table_name))
-        #     else:
-        #         print("Create consolidated statement(%s season) %s ok!" % (statement_type, table_name))
-        #
-        # # close the engine pool
-        # cls.engine.dispose()
+        if last_date is not None:
+            row_data = statement_list.columns[1:statement_list.columns.size - 1]  # 不包括第一和最后一列，因为第一列为报告日期，最后一列为空行
+            i = 0
+            for str_date in row_data:
+                if last_date >= datetime.datetime.strptime(str_date, '%Y-%m-%d').date():
+                    break
+                i = i + 1
+            if i > 0:
+                statement_list = statement_list.iloc[:, 0:i + 1]
+                statement_list = statement_list.T
+                if statement_type == 'Cash':
+                    statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
+
+                statement_list.columns = statement_list.ix[0].str.strip()
+
+                if statement_type == 'Cash':
+                    statement_list = statement_list.drop(' 报告日期')  # Cash statement 的特殊情况
+                else:
+                    statement_list = statement_list.drop('报告日期')
+
+                statement_list = statement_list.replace('--', 0, regex=True)
+                statement_list.index.name = '报告日期'
+                statement_list['code'] = stock_code
+                cls.insert_to_db_no_duplicate(statement_list, table_name, True)
+                print("Update Consolidated statement %s %s ok!" % (statement_type, table_name))
+            else:
+                print("Consolidated statement %s %s is the latest!" % (statement_type, table_name))
+        else:
+            statement_list = statement_list.T
+            if statement_type == 'Cash':
+                statement_list.iloc[0, 2] = '向中央银行借款净增加额(万元)'  # Cash statement 的特殊情况
+
+            statement_list.columns = statement_list.ix[0].str.strip()
+
+            if statement_type == 'Cash':
+                statement_list = statement_list.drop(' 报告日期')
+                statement_list = statement_list.drop(' ')  # Cash statement 的特殊情况
+            else:
+                statement_list = statement_list.drop('报告日期')
+
+            statement_list = statement_list.replace('--', 0, regex=True)  # 原始数据中没有的数据以'--'表示
+            statement_list.index.name = '报告日期'
+            statement_list['code'] = stock_code
+            cls.insert_to_db_no_duplicate(statement_list, table_name, True)
+
+            print("Create consolidated statement(%s season) %s ok!" % (statement_type, table_name))
+
+        # close the engine pool
+        cls.engine.dispose()
 
     # ----------------------------------------------------------------------------
     @classmethod
@@ -304,6 +280,4 @@ class AdminDatabase:
 
 
 if __name__ == '__main__':
-    # result = AdminDatabase.get_table_data('k_data', 'code')
-    # print(result)
-    ts.get_zz500s()
+    AdminDatabase.update_db_consolidated_statement_data('000004','Cash')
