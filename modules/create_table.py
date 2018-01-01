@@ -16,6 +16,72 @@ class CreateTable:
     conn, cur = connection.connect_server()
     metadata = MetaData()
 
+    @classmethod
+    def create_table_stock_basics(cls):
+        table_stock_basics = Table('stock_basics', cls.metadata,
+                                   Column('code', String(20), primary_key=True),
+                                   Column('name', String(100)),
+                                   Column('industry', String(20)),
+                                   Column('area', String(20)),
+                                   Column('pe', DECIMAL(10, 6)),
+                                   Column('outstanding', DECIMAL(12, 4)),
+                                   Column('totals', DECIMAL(12, 4)),
+                                   Column('totalAssets', DECIMAL(22, 10)),
+                                   Column('liquidAssets', DECIMAL(22, 9)),
+                                   Column('fixedAssets', DECIMAL(22, 9)),
+                                   Column('reserved', DECIMAL(22, 9)),
+                                   Column('reservedPerShare', DECIMAL(22, 9)),
+                                   Column('esp', DECIMAL(12, 4)),
+                                   Column('bvps', DECIMAL(12, 4)),
+                                   Column('pb', DECIMAL(12, 5)),
+                                   Column('timeToMarket', DECIMAL(11, 8)),
+                                   Column('undp', DECIMAL(22, 9)),
+                                   Column('perundp', DECIMAL(12, 4)),
+                                   Column('rev', DECIMAL(12, 6)),
+                                   Column('profit', DECIMAL(12, 7)),
+                                   Column('gpr', DECIMAL(12, 4)),
+                                   Column('npr', DECIMAL(12, 6)),
+                                   Column('holders', DECIMAL(12, 6)),
+                                   Column('createDate', DECIMAL(20, 8))
+                                   )
+        table_stock_basics.create(cls.engine, checkfirst=True)
+        print('Create stock basics, ok!')
+        return table_stock_basics
+
+    # @classmethod
+    # def create_table_stock_basics(cls):
+    #     try:
+    #         # cur.execute("drop table if exists stock_basics")
+    #         cls.cur.execute("create table stock_basics(code int unsigned, name varchar(20),industry varchar(20), \
+    #                         area varchar(20),\
+    #                         pe decimal(8,2),\
+    #                         outstanding decimal(10,2),\
+    #                         totals decimal(10,2),\
+    #                         totalAssets decimal(20,2),\
+    #                         liquidAssets decimal(20,2),\
+    #                         fixedAssets decimal(20,2),\
+    #                         reserved decimal(20,2),\
+    #                         reservedPerShare decimal(10,2),\
+    #                         esp decimal(10,4),\
+    #                         bvps decimal(8,2),\
+    #                         pb decimal(10,2),\
+    #                         timeToMarket int,\
+    #                         undp decimal(20,2),\
+    #                         perundp decimal(8,2),\
+    #                         rev decimal(10,2),\
+    #                         profit decimal(10,2),\
+    #                         gpr decimal(10,2),\
+    #                         npr decimal(10,2),\
+    #                         holders int,\
+    #                         createDate varchar(20))")
+    #         print('stock_basics table created.')
+    #     except pymysql.Warning as w:
+    #         print("Warning:%s" % str(w))
+    #     except pymysql.Error as e:
+    #         print("Error %d:%s" % (e.args[0], e.args[1]))
+    #
+    #     cls.conn.commit()
+
     # k 线数据
     @classmethod
     def create_table_k_data(cls):
@@ -428,39 +494,6 @@ class CreateTable:
     @classmethod
     def testing_server(cls):
         cls.connection.testing_server()
-
-    @classmethod
-    def create_table_stock_basics(cls):
-        try:
-            # cur.execute("drop table if exists stock_basics")
-            cls.cur.execute("create table stock_basics(code int unsigned, name varchar(20),industry varchar(20), area varchar(20),\
-                        pe decimal(8,2),\
-                        outstanding decimal(10,2),\
-                        totals decimal(10,2),\
-                        totalAssets decimal(20,2),\
-                        liquidAssets decimal(20,2),\
-                        fixedAssets decimal(20,2),\
-                        reserved decimal(20,2),\
-                        reservedPerShare decimal(10,2),\
-                        esp decimal(10,4),\
-                        bvps decimal(8,2),\
-                        pb decimal(10,2),\
-                        timeToMarket int,\
-                        undp decimal(20,2),\
-                        perundp decimal(8,2),\
-                        rev decimal(10,2),\
-                        profit decimal(10,2),\
-                        gpr decimal(10,2),\
-                        npr decimal(10,2),\
-                        holders int,\
-                        createDate varchar(20))")
-            print('stock_basics table created.')
-        except pymysql.Warning as w:
-            print("Warning:%s" % str(w))
-        except pymysql.Error as e:
-            print("Error %d:%s" % (e.args[0], e.args[1]))
-
-        cls.conn.commit()
 
     @classmethod
     def create_table_report_data(cls):

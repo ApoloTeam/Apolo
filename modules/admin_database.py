@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import pymysql
+from sqlalchemy.orm import sessionmaker
 import datetime
 import tushare as ts
 import pandas as pd
@@ -12,24 +12,48 @@ from modules.create_table import CreateTable
 class AdminDatabase:
     connection = ConnectDatabase()
     engine = connection.create_db_engine()
-    table_creator = CreateTable()
-
-    @staticmethod
-    def testing():
-        return print(AdminDatabase.engine)
+    con, cur = connection.connect_server()
+    db_session = sessionmaker(bind=engine)
+    Session = db_session()
 
     @classmethod
-    def create_database(cls, db_name):
-        try:
-            print('Create database: ' + db_name + ' if not exist')
-            cls.engine.execute("create database if not exists %s" % db_name)
-            print('apolo database created.')
-        except pymysql.Warning as w:
-            print("Warning:%s" % str(w))
-        except pymysql.Error as e:
-            print("Error %d:%s" % (e.args[0], e.args[1]))
+    def testing(cls):
+        return print(cls.engine)
 
-        cls.engine.dispose()  # stop all the engine connection
+    # @classmethod
+    # def create_database(cls, db_name):
+    #     try:
+    #         print('Create database: ' + db_name + ' if not exist')
+    #         cls.engine.execute("create database if not exists %s" % db_name)
+    #         print('apolo database created.')
+    #     except pymysql.Warning as w:
+    #         print("Warning:%s" % str(w))
+    #     except pymysql.Error as e:
+    #         print("Error %d:%s" % (e.args[0], e.args[1]))
+    #
+    #     cls.engine.dispose()  # stop all the engine connection
+
+    @classmethod
+    def get_table_data(cls, table_name, select_column=None):
+        """
+        get the table data
+        """
+        result = pd.read_sql_table(table_name, cls.engine, columns=select_column)
+        # result = pd.read_sql('select {col} from {tbl}'.format(col=select_column, tbl=table_name), cls.engine)
+        cls.engine.dispose()
+        return result
+
+    @classmethod
+    def get_field_data_stock_basics(cls, stock_code, field):
+        cls.cur.execute("select {f} from stock_basics where code={code}".format(f=field, code=stock_code))
+        f = cls.cur.fetchall()
+        return f[0][0]
+
+    @classmethod
+    def get_timeToMarket(cls, stock_code):
+        timeToMarket = str(cls.get_field_data_stock_basics(stock_code, field='timeToMarket'))
+        timeToMarket = datetime.date(int(timeToMarket[0:4]), int(timeToMarket[4:6]), int(timeToMarket[6:8]))
+        return timeToMarket
 
     @classmethod
     def insert_to_db_no_duplicate(cls, df, table_name, has_index=False):
@@ -50,7 +74,7 @@ class AdminDatabase:
                     pass
 
     @classmethod
-    def update_db_k_data(cls, stock_code):
+    def update_db_k_data(cls, stock_code, input_end_date=''):
         print('k_data, start to update %s' % stock_code)
         # set the table name
         tbl_k_data = 'k_data'
@@ -58,12 +82,16 @@ class AdminDatabase:
         result = cls.engine.execute("select max(date) from %s where code=\'%s\'" % (tbl_k_data, stock_code))
         last_date = result.fetchone()[0]
         if last_date is None:
-            start_date = datetime.date(2000, 1, 1)  # default start date
+            # start_date = datetime.date(2000, 1, 1)  # default start date
+            start_date = cls.get_timeToMarket(stock_code)
         else:
             start_date = last_date + datetime.timedelta(days=1)
 
         # get the end date
-        end_date = datetime.date.today()
+        if (input_end_date is None) or (input_end_date == ''):
+            end_date = datetime.date.today()
+        else:
+            end_date = datetime.date(2016, 1, 19)
 
         if start_date < end_date:
             str_start_date = start_date.strftime("%Y-%m-%d")
@@ -269,15 +297,97 @@ class AdminDatabase:
 
     # ----------------------------------------------------------------------------
     @classmethod
-    def get_table_data(cls, table_name, select_column=None):
-        """
-        get the table data
-        """
-        result = pd.read_sql_table(table_name, cls.engine, columns=select_column)
-        # result = pd.read_sql('select {col} from {tbl}'.format(col=select_column, tbl=table_name), cls.engine)
-        cls.engine.dispose()
-        return result
+    def update_data_hs300(cls):
+        hs300_list_table = CreateTable.create_table_hs300_list()
+        hs300_list_code = AdminDatabase.get_table_data(hs300_list_table.name, [hs300_list_table.c.code.name])
+        count = 0.0
+        print("K Data updating...")
+        for row in hs300_list_code[hs300_list_table.c.code.name]:
+            AdminDatabase.update_db_k_data(row)
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / hs300_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Balance Sheet updating...")
+        for row in hs300_list_code[hs300_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'BS')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / hs300_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Cash Flow Statement updating...")
+        for row in hs300_list_code[hs300_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'Cash')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / hs300_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Income Statement updating...")
+        for row in hs300_list_code[hs300_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'PL')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / hs300_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+    @classmethod
+    def update_data_sz50(cls, input_end_date=''):
+        sz50_list_table = CreateTable.create_table_sz50_list()
+        sz50_list_code = AdminDatabase.get_table_data(sz50_list_table.name, [sz50_list_table.c.code.name])
+        count = 0.0
+        print("K Data updating...")
+        for row in sz50_list_code[sz50_list_table.c.code.name]:
+            AdminDatabase.update_db_k_data(row, input_end_date)
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Balance Sheet updating...")
+        for row in sz50_list_code[sz50_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'BS')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Cash Flow Statement updating...")
+        for row in sz50_list_code[sz50_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'Cash')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
+
+        count = 0.0
+        print("Income Statement updating...")
+        for row in sz50_list_code[sz50_list_table.c.code.name]:
+            AdminDatabase.update_db_consolidated_statement_data(row, 'PL')
+            print("update :%s OK" % row)
+            count = count + 1
+            print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
+
+        print("Completed files:%d, ok!" % count)
 
 
 if __name__ == '__main__':
-    AdminDatabase.update_db_consolidated_statement_data('000004','Cash')
+    # AdminDatabase.update_db_consolidated_statement_data('000004','Cash')
+    AdminDatabase.update_data_sz50('2011-01-03')
+    # AdminDatabase.update_db_k_data('600036')
+    # AdminDatabase.get_timeToMarket('600036')
+    # print(ts.get_k_data('600036'))
