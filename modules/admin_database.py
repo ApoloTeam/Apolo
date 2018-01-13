@@ -74,7 +74,7 @@ class AdminDatabase:
                     pass
 
     @classmethod
-    def update_db_k_data(cls, stock_code, input_end_date=''):
+    def update_db_k_data(cls, stock_code):
         print('k_data, start to update %s' % stock_code)
         # set the table name
         tbl_k_data = 'k_data'
@@ -82,30 +82,59 @@ class AdminDatabase:
         result = cls.engine.execute("select max(date) from %s where code=\'%s\'" % (tbl_k_data, stock_code))
         last_date = result.fetchone()[0]
         if last_date is None:
-            # start_date = datetime.date(2000, 1, 1)  # default start date
             start_date = cls.get_timeToMarket(stock_code)
         else:
             start_date = last_date + datetime.timedelta(days=1)
+        # get today as the end date
+        end_date = datetime.date.today()
 
-        # get the end date
-        if (input_end_date is None) or (input_end_date == ''):
-            end_date = datetime.date.today()
-        else:
-            end_date = datetime.date(2016, 1, 19)
-
-        if start_date < end_date:
+        diff = end_date - start_date
+        if diff.days > 365:
+            print("exceed one year")
+            print("update the first year")
             str_start_date = start_date.strftime("%Y-%m-%d")
-            str_end_date = end_date.strftime("%Y-%m-%d")
-        else:
-            str_end_date = end_date.strftime("%Y-%m-%d")
-            str_start_date = str_end_date
-        print('start date:' + str_start_date + ' ; end date:' + str_end_date)
-        # get the k_data from Tushare
-        k_data = ts.get_k_data(code=stock_code, start=str_start_date, end=str_end_date)
+            str_first_year_end_date = datetime.date(start_date.year, 12, 31).strftime("%Y-%m-%d")
+            # get the k_data from Tushare
+            k_data = ts.get_k_data(code=stock_code, start=str_start_date, end=str_first_year_end_date)
+            # insert data to database
+            cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
+            print("updated the first year")
 
-        # insert data to database
-        cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
-        print('%s updated, done' % stock_code)
+            print("update the period")
+            for y in range(start_date.year+1, end_date.year):
+                str_period_start_date = datetime.date(y, 1, 1).strftime("%Y-%m-%d")
+                str_period_end_date = datetime.date(y, 12, 31).strftime("%Y-%m-%d")
+                # get the k_data from Tushare
+                k_data = ts.get_k_data(code=stock_code, start=str_period_start_date, end=str_period_end_date)
+                # insert data to database
+                cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
+                print("%d year updated" % y)
+            print("updated the period")
+
+            print("update the last year")
+            str_last_year_start_date = datetime.date(end_date.year, 1, 1).strftime("%Y-%m-%d")
+            str_end_date = end_date.strftime("%Y-%m-%d")
+            # get the k_data from Tushare
+            k_data = ts.get_k_data(code=stock_code, start=str_last_year_start_date, end=str_end_date)
+            # insert data to database
+            cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
+            print("updated the last year")
+            print('%s updated, done' % stock_code)
+        else:
+            print(diff.days)
+            if start_date < end_date:
+                str_start_date = start_date.strftime("%Y-%m-%d")
+                str_end_date = end_date.strftime("%Y-%m-%d")
+            else:
+                str_end_date = end_date.strftime("%Y-%m-%d")
+                str_start_date = str_end_date
+            print('start date:' + str_start_date + ' ; end date:' + str_end_date)
+            # get the k_data from Tushare
+            k_data = ts.get_k_data(code=stock_code, start=str_start_date, end=str_end_date)
+            # insert data to database
+            cls.insert_to_db_no_duplicate(k_data, tbl_k_data)
+            print('%s updated, done' % stock_code)
+
         # close the engine pool
         cls.engine.dispose()
 
@@ -148,32 +177,66 @@ class AdminDatabase:
     def update_db_history_data(cls, stock_code):
         tbl_history_data = 'history_data'
         # get the start date
-        result = cls.engine.execute("select max(date) from %s where" % tbl_history_data)
+        result = cls.engine.execute("select max(date) from %s where code=\'%s\'" % (tbl_history_data, stock_code))
         last_date = result.fetchone()[0]
         if last_date is None:
-            start_date = datetime.date(2000, 1, 1)  # default start date
+            start_date = cls.get_timeToMarket(stock_code)
         else:
             start_date = last_date + datetime.timedelta(days=1)
-
-        # get the end date
+        # get today as the end date
         end_date = datetime.date.today()
 
-        if start_date < end_date:
+        diff = end_date - start_date
+        if diff.days > 365:
+            print("exceed one year")
+            print("update the first year")
             str_start_date = start_date.strftime("%Y-%m-%d")
-            str_end_date = end_date.strftime("%Y-%m-%d")
-        else:
-            str_end_date = end_date.strftime("%Y-%m-%d")
-            str_start_date = str_end_date
-        print('start date:' + str_start_date + ' ; end date:' + str_end_date)
-        # get the history data from Tushare
-        history_data = ts.get_hist_data(code=stock_code, start=str_start_date, end=str_end_date)
-        # print(history_data)
+            str_first_year_end_date = datetime.date(start_date.year, 12, 31).strftime("%Y-%m-%d")
+            # get the k_data from Tushare
+            history_data = ts.get_hist_data(code=stock_code, start=str_start_date, end=str_first_year_end_date)
+            history_data['code'] = stock_code
+            # insert data to database
+            cls.insert_to_db_no_duplicate(history_data, tbl_history_data)
+            print("updated the first year")
+            print("update the period")
+            for y in range(start_date.year + 1, end_date.year):
+                str_period_start_date = datetime.date(y, 1, 1).strftime("%Y-%m-%d")
+                str_period_end_date = datetime.date(y, 12, 31).strftime("%Y-%m-%d")
+                # get the k_data from Tushare
+                history_data = ts.get_hist_data(code=stock_code, start=str_period_start_date, end=str_period_end_date)
+                history_data['code'] = stock_code
+                # insert data to database
+                cls.insert_to_db_no_duplicate(history_data, tbl_history_data)
+                print("%d year updated" % y)
+            print("updated the period")
 
-        # insert data to database
-        cls.insert_to_db_no_duplicate(history_data, tbl_history_data, has_index=True)
+            print("update the last year")
+            str_last_year_start_date = datetime.date(end_date.year, 1, 1).strftime("%Y-%m-%d")
+            str_end_date = end_date.strftime("%Y-%m-%d")
+            # get the k_data from Tushare
+            history_data = ts.get_hist_data(code=stock_code, start=str_last_year_start_date, end=str_end_date)
+            history_data['code'] = stock_code
+            # insert data to database
+            cls.insert_to_db_no_duplicate(history_data, tbl_history_data)
+            print("updated the last year")
+            print('%s updated, done' % stock_code)
+        else:
+            if start_date < end_date:
+                str_start_date = start_date.strftime("%Y-%m-%d")
+                str_end_date = end_date.strftime("%Y-%m-%d")
+            else:
+                str_end_date = end_date.strftime("%Y-%m-%d")
+                str_start_date = str_end_date
+            print('start date:' + str_start_date + ' ; end date:' + str_end_date)
+            # get the history data from Tushare
+            history_data = ts.get_hist_data(code=stock_code, start=str_start_date, end=str_end_date)
+            history_data['code'] = stock_code
+            # insert data to database
+            cls.insert_to_db_no_duplicate(history_data, tbl_history_data, has_index=True)
 
         # close the engine pool
         cls.engine.dispose()
+
 
     @classmethod
     def update_db_dividend_data(cls):
@@ -387,7 +450,6 @@ class AdminDatabase:
 
 if __name__ == '__main__':
     # AdminDatabase.update_db_consolidated_statement_data('000004','Cash')
-    AdminDatabase.update_data_sz50('2011-01-03')
-    # AdminDatabase.update_db_k_data('600036')
-    # AdminDatabase.get_timeToMarket('600036')
-    # print(ts.get_k_data('600036'))
+    # AdminDatabase.update_data_sz50('2011-01-03')
+    # AdminDatabase.update_db_history_data('000004')
+    AdminDatabase.get_timeToMarket('600036')

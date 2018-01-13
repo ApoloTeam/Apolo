@@ -123,7 +123,6 @@ class CreateTable:
     @classmethod
     def create_table_history_data(cls):
         table_history_data = Table('history_data', cls.metadata,
-                                   Column('code', String(20)),
                                    Column('date', Date()),
                                    # 时间和日期 低频数据时为：YYYY-MM-DD 高频数为：YYYY-MM-DD HH:MM
                                    Column('open', DECIMAL(10, 4)),  # 开盘价
@@ -140,6 +139,7 @@ class CreateTable:
                                    Column('v_ma10', DECIMAL(20, 4)),  # 10日均量
                                    Column('v_ma20', DECIMAL(20, 4)),  # 20日均量
                                    Column('turnover', DECIMAL(20, 4)),  # 换手率
+                                   Column('code', String(20)),
                                    PrimaryKeyConstraint('code', 'date')
                                    )
         table_history_data.create(cls.engine, checkfirst=True)  # create table
@@ -572,12 +572,12 @@ class CreateTable:
         # cls.create_table_stock_basics()
         # cls.create_table_report_data()
         # cls.create_table_profit_data()
-        # cls.create_table_history_data()
+        cls.create_table_history_data()
         # cls.create_industry_classified()
         # cls.create_stock_code()
-        cls.create_table_con_bs_season()
-        cls.create_table_con_cash_season()
-        cls.create_table_con_pl_season()
+        # cls.create_table_con_bs_season()
+        # cls.create_table_con_cash_season()
+        # cls.create_table_con_pl_season()
 
 
 if __name__ == "__main__":
