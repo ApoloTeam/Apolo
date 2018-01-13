@@ -237,7 +237,6 @@ class AdminDatabase:
         # close the engine pool
         cls.engine.dispose()
 
-
     @classmethod
     def update_db_dividend_data(cls):
         tbl_dividend_data = 'dividend_data'
@@ -404,13 +403,13 @@ class AdminDatabase:
         print("Completed files:%d, ok!" % count)
 
     @classmethod
-    def update_data_sz50(cls, input_end_date=''):
+    def update_data_sz50(cls):
         sz50_list_table = CreateTable.create_table_sz50_list()
         sz50_list_code = AdminDatabase.get_table_data(sz50_list_table.name, [sz50_list_table.c.code.name])
         count = 0.0
         print("K Data updating...")
         for row in sz50_list_code[sz50_list_table.c.code.name]:
-            AdminDatabase.update_db_k_data(row, input_end_date)
+            AdminDatabase.update_db_k_data(row)
             print("update :%s OK" % row)
             count = count + 1
             print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
