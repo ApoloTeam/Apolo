@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>681</width>
-      <height>91</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
@@ -49,17 +49,30 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="btn_update">
+    <widget class="QPushButton" name="btn_update_k_data">
      <property name="geometry">
       <rect>
        <x>210</x>
        <y>20</y>
-       <width>75</width>
+       <width>101</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>Update</string>
+      <string>Update K data</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_update_hist_data">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>20</y>
+       <width>131</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Update History data</string>
      </property>
     </widget>
    </widget>
@@ -67,9 +80,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>110</y>
+      <y>100</y>
       <width>681</width>
-      <height>91</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
@@ -101,7 +114,7 @@
       <string>Update hs300</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="btn_update_hs300_2">
+    <widget class="QPushButton" name="btn_update_zz500">
      <property name="geometry">
       <rect>
        <x>200</x>
@@ -114,26 +127,129 @@
       <string>Update zz500</string>
      </property>
     </widget>
+    <zorder>btn_update_sz50</zorder>
+    <zorder>btn_update_hs300</zorder>
+    <zorder>btn_update_zz500</zorder>
+    <zorder>by_stock_code</zorder>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEdit">
+   <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>450</y>
+      <y>320</y>
       <width>681</width>
-      <height>191</height>
+      <height>331</height>
      </rect>
     </property>
+    <property name="lineWrapMode">
+     <enum>QTextEdit::WidgetWidth</enum>
+    </property>
+    <property name="overwriteMode">
+     <bool>false</bool>
+    </property>
    </widget>
-   <widget class="QTextBrowser" name="textBrowser">
+   <widget class="QGroupBox" name="for_all_stock">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>210</y>
+      <y>240</y>
       <width>681</width>
-      <height>231</height>
+      <height>71</height>
      </rect>
     </property>
+    <property name="title">
+     <string>For All Stock</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <widget class="QPushButton" name="btn_update_divi_data">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>141</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Upate Dividend data</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>681</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>GroupBox</string>
+    </property>
+    <widget class="QPushButton" name="btn_update_statement">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>131</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Update Statement</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_bs">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>20</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Balance Sheet</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_pl">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>20</y>
+       <width>89</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>P&amp;L Statement</string>
+     </property>
+     <property name="text">
+      <string>P&amp;&amp;L</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_cash">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>20</y>
+       <width>89</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cash Flow</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -1,18 +1,22 @@
 from PyQt5 import QtWidgets, QtGui
 from ui.home import Ui_MainWindow
+from modules.admin_database import AdminDatabase
+from modules.get_data_from_Tushare import get_stock_info
 
-# class myWindow(QtWidgets.QWidget,Ui_MainWindow):
 class myWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(myWindow, self).__init__()
-        # self.setupUi(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.btn_search.clicked.connect(self.hello)
+        self.ui.btn_search.clicked.connect(self.testDao)
 
-    def hello(self):
-        self.ui.plainTextEdit.appendPlainText("hello, World")
-        print('hello')
+    def get_stock_info_dao(self):
+        result = get_stock_info(self.ui.input_stock_code.text())
+        self.ui.textEdit.append(str(result))
+        print(result)
+
+    def update_(self):
+        pass
 
 
 

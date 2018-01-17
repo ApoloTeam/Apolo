@@ -195,7 +195,7 @@ def query_timeToMarket(stock_code):
     return timeToMarket
 
 
-def test(stock_code):
+def get_stock_info(stock_code):
     cur.execute("select * from stock_basics where code={code}".format(code = stock_code))
     f = cur.fetchall()
     print(f)
