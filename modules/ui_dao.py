@@ -8,15 +8,17 @@ class myWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(myWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.btn_search.clicked.connect(self.testDao)
+        self.ui.btn_search.clicked.connect(self.get_stock_info_dao)
+        self.ui.btn_update_sz50.clicked.connect(self.update_sz50_dao)
 
     def get_stock_info_dao(self):
         result = get_stock_info(self.ui.input_stock_code.text())
         self.ui.textEdit.append(str(result))
         print(result)
 
-    def update_(self):
-        pass
+    def update_sz50_dao(self):
+        result = AdminDatabase.update_data_sz50()
+        self.ui.textEdit.append(str(result))
 
 
 

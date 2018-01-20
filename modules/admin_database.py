@@ -104,6 +104,8 @@ class AdminDatabase:
             for y in range(start_date.year+1, end_date.year):
                 str_period_start_date = datetime.date(y, 1, 1).strftime("%Y-%m-%d")
                 str_period_end_date = datetime.date(y, 12, 31).strftime("%Y-%m-%d")
+                print(str_period_start_date)
+                print(str_period_end_date)
                 # get the k_data from Tushare
                 k_data = ts.get_k_data(code=stock_code, start=str_period_start_date, end=str_period_end_date)
                 # insert data to database
@@ -414,10 +416,10 @@ class AdminDatabase:
             count = count + 1
             print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
 
-        print("Completed files:%d, ok!" % count)
+        print("K Data, completed files:%d, ok!" % count)
 
         count = 0.0
-        print("Balance Sheet updating...")
+        print("*** Balance Sheet updating...")
         for row in sz50_list_code[sz50_list_table.c.code.name]:
             AdminDatabase.update_db_consolidated_statement_data(row, 'BS')
             print("update :%s OK" % row)
@@ -445,10 +447,12 @@ class AdminDatabase:
             print("Percentage:%.1f%%" % (count / sz50_list_code.size * 100))
 
         print("Completed files:%d, ok!" % count)
+        return 'Done'
 
 
 if __name__ == '__main__':
     # AdminDatabase.update_db_consolidated_statement_data('000004','Cash')
     # AdminDatabase.update_data_sz50('2011-01-03')
     # AdminDatabase.update_db_history_data('000004')
-    AdminDatabase.get_timeToMarket('600036')
+    # AdminDatabase.get_timeToMarket('600036')
+    AdminDatabase.update_db_k_data('600309')
