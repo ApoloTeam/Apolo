@@ -2,8 +2,10 @@
 
 
 ### Installation
-Please run setup.py
-
+Please run:
+```
+setup.py
+```
 ### Get started
 For Window, please double click to run:
 ```
