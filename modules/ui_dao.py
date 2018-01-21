@@ -1,58 +1,78 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 from ui.home import Ui_MainWindow
 from modules.admin_database import AdminDatabase
 from modules.get_data_from_Tushare import get_stock_info
 
-class myWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+
+class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
-        super(myWindow, self).__init__()
+        super(ApoloWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.btn_search.clicked.connect(self.get_stock_info_dao)
+        self.ui.btn_update_k_data.clicked.connect(self.update_k_data_dao)
+        self.ui.btn_update_statement.clicked.connect(self.update_statement_dao)
+
         self.ui.btn_update_sz50.clicked.connect(self.update_sz50_dao)
+        self.ui.btn_update_hs300.clicked.connect(self.update_hs300_dao)
+        self.ui.btn_update_zz500.clicked.connect(self.update_zz500_dao)
 
+        self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
+
+    def check_input_stock_code(self):
+        self.ui.input_stock_code.selectAll()
+        if len(self.ui.input_stock_code.selectedText()) == 0:
+            self.ui.textEdit.append("Please input stock code")
+            return False
+        return True
+
+    """By Stock Code"""
     def get_stock_info_dao(self):
-        result = get_stock_info(self.ui.input_stock_code.text())
-        self.ui.textEdit.append(str(result))
-        print(result)
+        if self.check_input_stock_code():
+            result = get_stock_info(self.ui.input_stock_code.text())
+            self.ui.textEdit.append(str(result))
 
+    def update_k_data_dao(self):
+        if self.check_input_stock_code():
+            result = AdminDatabase.update_db_k_data(self.ui.input_stock_code.text())
+            self.ui.textEdit.append(str(result))
+            print(result)
+
+    """Statement"""
+    def update_statement_dao(self):
+        if self.check_input_stock_code():
+            if self.ui.rdb_bs.isChecked():
+                result = AdminDatabase.update_db_consolidated_statement_data(self.ui.input_stock_code.text(), 'BS')
+                self.ui.textEdit.append(result)
+                print(result)
+            elif self.ui.rdb_cash.isChecked():
+                result = AdminDatabase.update_db_consolidated_statement_data(self.ui.input_stock_code.text(), 'Cash')
+                self.ui.textEdit.append(result)
+                print(result)
+            elif self.ui.rdb_pl.isChecked():
+                result = AdminDatabase.update_db_consolidated_statement_data(self.ui.input_stock_code.text(), 'PL')
+                self.ui.textEdit.append(result)
+                print(result)
+            else:
+                self.ui.textEdit.append("Please choose one type")
+
+    """By Stock List"""
     def update_sz50_dao(self):
         result = AdminDatabase.update_data_sz50()
         self.ui.textEdit.append(str(result))
+        print(result)
 
+    def update_hs300_dao(self):
+        result = AdminDatabase.update_data_hs300()
+        self.ui.textEdit.append(str(result))
+        print(result)
 
+    def update_zz500_dao(self):
+        self.ui.textEdit.append('Disabled')
+        print("Disabled")
 
-# from PyQt5.QtCore import QObject,pyqtSlot
-# from modules.get_data_from_Tushare import test
-# from modules.admin_database import AdminDatabase
-#
-#
-# class UIDao(QObject):
-#     text = ''
-#     def __init__(self):
-#         super(UIDao,self).__init__()
-#         self.send_text=''
-#
-#     @pyqtSlot(int, result=str)
-#     def set_value(self, value):
-#         return str(value + 20)
-#
-#     @pyqtSlot(str, result=str)
-#     def send_msg(self, msg):  # UI -> python console -> UI
-#         return str(self.send_text)
-#
-#     @pyqtSlot(str)  # UI -> python console
-#     def send_msg_2(self,string):
-#         print(string)
-#
-#     def print_stock_code(self, code):
-#         self.send_text = "Get stock code: "+code
-#         print("Get stock code: "+code)
-#
-#     # @staticmethod
-#     def get_stock_code(self, stock_code):
-#         # self.print_stock_code(stock_code)
-#         self.send_text = test(stock_code)
-#
-#     def update_sz50(self):
-#         self.send_text = AdminDatabase.update_data_sz50()
+    """For All Stock"""
+    def update_dividend_data_dao(self):
+        result = AdminDatabase.update_db_dividend_data()
+        self.ui.textEdit.append(str(result))
+        print(result)

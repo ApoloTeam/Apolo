@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>681</width>
-      <height>81</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="title">
@@ -62,17 +62,65 @@
       <string>Update K data</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="btn_update_hist_data">
+    <widget class="QPushButton" name="btn_update_statement">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>20</y>
+       <x>10</x>
+       <y>50</y>
        <width>131</width>
-       <height>23</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
-      <string>Update History data</string>
+      <string>Update Statement</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_bs">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>60</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Balance Sheet</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_pl">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>60</y>
+       <width>89</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>P&amp;L Statement</string>
+     </property>
+     <property name="text">
+      <string>P&amp;&amp;L</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="rdb_cash">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>60</y>
+       <width>89</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cash Flow</string>
      </property>
     </widget>
    </widget>
@@ -80,9 +128,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>120</y>
       <width>681</width>
-      <height>81</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="title">
@@ -127,18 +175,14 @@
       <string>Update zz500</string>
      </property>
     </widget>
-    <zorder>btn_update_sz50</zorder>
-    <zorder>btn_update_hs300</zorder>
-    <zorder>btn_update_zz500</zorder>
-    <zorder>by_stock_code</zorder>
    </widget>
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>320</y>
+      <y>310</y>
       <width>681</width>
-      <height>331</height>
+      <height>341</height>
      </rect>
     </property>
     <property name="lineWrapMode">
@@ -152,9 +196,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>240</y>
+      <y>220</y>
       <width>681</width>
-      <height>71</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
@@ -174,80 +218,6 @@
      </property>
      <property name="text">
       <string>Upate Dividend data</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>190</y>
-      <width>681</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>GroupBox</string>
-    </property>
-    <widget class="QPushButton" name="btn_update_statement">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>131</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Update Statement</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="rdb_bs">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>20</y>
-       <width>101</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Balance Sheet</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="rdb_pl">
-     <property name="geometry">
-      <rect>
-       <x>270</x>
-       <y>20</y>
-       <width>89</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="whatsThis">
-      <string>P&amp;L Statement</string>
-     </property>
-     <property name="text">
-      <string>P&amp;&amp;L</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="rdb_cash">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>20</y>
-       <width>89</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Cash Flow</string>
      </property>
     </widget>
    </widget>
