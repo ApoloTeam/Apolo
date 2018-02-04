@@ -93,7 +93,8 @@ class CreateTable:
                              Column('low', DECIMAL(10, 4)),  # 最低价
                              Column('volume', DECIMAL(20, 4)),  # 成交量
                              Column('code', String(20)),  # 证券代码
-                             PrimaryKeyConstraint('code', 'date')
+                             PrimaryKeyConstraint('code', 'date'),
+                             extend_existing=True
                              )
         table_k_data.create(cls.engine, checkfirst=True)  # create table
         print("Create k_data table, ok!")
@@ -154,7 +155,7 @@ class CreateTable:
                                 Column('name', String(100))
                                 )
         table_sz50_list.create(cls.engine, checkfirst=True)  # create table
-        print("Create sz50_list table, ok!")
+        # print("Create sz50_list table, ok!")
         return table_sz50_list
 
     # 中证500
@@ -578,7 +579,6 @@ class CreateTable:
         # cls.create_table_con_bs_season()
         # cls.create_table_con_cash_season()
         # cls.create_table_con_pl_season()
-
 
 if __name__ == "__main__":
     CreateTable.create_tables()

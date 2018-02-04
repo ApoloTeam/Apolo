@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import exc
 #from config import Config
 from modules.config import Config
-from modules.table_creator import Table_creator
+from _archive.table_creator import Table_creator
 import datetime
 import tushare as ts
 import pandas as pd
