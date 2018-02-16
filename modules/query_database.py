@@ -1,4 +1,5 @@
-from sqlalchemy import select ,MetaData, Table, Column, Integer, String, Date, DECIMAL, PrimaryKeyConstraint, and_, or_, not_
+from sqlalchemy import select ,MetaData, Table, Column, Integer, String, Date, DECIMAL, \
+    PrimaryKeyConstraint, and_, or_, not_, between
 from sqlalchemy.orm import sessionmaker, mapper
 from sqlalchemy.ext.declarative import declarative_base
 from modules.connect_database import ConnectDatabase
@@ -54,7 +55,27 @@ class QueryDatabase:
         for value in values:
             return float(value[0])
 
+    @classmethod
+    def get_k_value_period(cls, stock_code, start_date, end_date):
+        arr_values = []
+        arr_index = []
+        select_sql = [cls.users.columns.close]
+        where_sql = and_(cls.users.columns.code == stock_code,
+                         between(cls.users.columns.date, dt.datetime.strptime(start_date, '%Y-%m-%d'),
+                                 dt.datetime.strptime(end_date, '%Y-%m-%d')))
+        sql = select(select_sql).where(where_sql)
+        values = sql.execute()
+        for value in values:
+            arr_values.append(float(value[0]))
+
+        from_day = dt.datetime.strptime(start_date, '%Y-%m-%d').day
+        to_day = dt.datetime.strptime(end_date, '%Y-%m-%d').day
+        for day in range(int(from_day), int(to_day)+1):
+            arr_index.append(day)
+        print(arr_index)
+        return arr_values, arr_index
+
 
 if __name__ == "__main__":
-    print(QueryDatabase.get_k_value("000001", "1991-04-05"))
-    print(QueryDatabase.get_k_value("000001", "1991-04-06"))
+    print(QueryDatabase.get_k_value_period("000001", "2018-01-22", "2018-01-25"))
+#     print(QueryDatabase.get_k_value("000001", "1991-04-06"))

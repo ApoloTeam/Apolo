@@ -123,6 +123,19 @@
       <string>Cash Flow</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="btn_draw">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>20</y>
+       <width>41</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Draw</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="by_stock_list">
     <property name="geometry">
@@ -231,16 +244,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="output_curr_price">
-    <property name="geometry">
-     <rect>
-      <x>430</x>
-      <y>220</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_search_k_data">
     <property name="geometry">
      <rect>
@@ -252,6 +255,52 @@
     </property>
     <property name="text">
      <string>Search</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="output_close_price">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>220</y>
+      <width>54</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0.0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_close_price">
+    <property name="geometry">
+     <rect>
+      <x>423</x>
+      <y>220</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Close Price:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="input_from_date">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>250</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="input_to_date">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>250</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
     </property>
    </widget>
   </widget>

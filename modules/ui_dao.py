@@ -4,6 +4,7 @@ import datetime as dt
 from ui.home import Ui_MainWindow
 from modules.admin_database import AdminDatabase
 from modules.query_database import QueryDatabase
+from modules.draw_charts import Draw
 from modules.get_data_from_Tushare import get_stock_info
 
 
@@ -16,6 +17,7 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.btn_update_k_data.clicked.connect(self.update_k_data_dao)
         self.ui.btn_update_statement.clicked.connect(self.update_statement_dao)
         self.ui.btn_search_k_data.clicked.connect(self.calendar_dao)
+        self.ui.btn_draw.clicked.connect(self.calendar_period_dao)
 
         self.ui.btn_update_sz50.clicked.connect(self.update_sz50_dao)
         self.ui.btn_update_hs300.clicked.connect(self.update_hs300_dao)
@@ -23,6 +25,11 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
         self.ui.input_stock_code.setText('000001')
+        self.ui.calendarWidget.setSelectedDate(QDate.currentDate())
+
+        self.ui.input_from_date.setClearButtonEnabled(True)
+        self.ui.input_to_date.setClearButtonEnabled(True)
+        self.ui.input_from_date.setFocus()
 
     def check_input_stock_code(self):
         self.ui.input_stock_code.selectAll()
@@ -46,9 +53,16 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def calendar_dao(self):
         if self.check_input_stock_code():
             date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
-            self.ui.textEdit.append(date)
-            value = QueryDatabase.get_k_value("000001", date)
-            self.ui.textEdit.append(float(value))
+            value = QueryDatabase.get_k_value(self.ui.input_stock_code.text(), date)
+            self.ui.output_close_price.setText(str(value))
+
+    def calendar_period_dao(self):
+        if self.check_input_stock_code():
+            # date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
+            data, index = QueryDatabase.get_k_value_period(self.ui.input_stock_code.text(),
+                                              self.ui.input_from_date.text(), self.ui.input_to_date.text())
+            # self.ui.output_close_price.setText(str(value))
+            Draw.draw_k_data_period(data, index)
 
     """Statement"""
     def update_statement_dao(self):
