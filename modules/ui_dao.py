@@ -1,4 +1,5 @@
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QDateTimeEdit, QMainWindow
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, QDate, QDateTime, QTime
 import datetime as dt
 from ui.home import Ui_MainWindow
@@ -8,7 +9,7 @@ from modules.draw_charts import Draw
 from modules.get_data_from_Tushare import get_stock_info
 
 
-class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+class ApoloWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(ApoloWindow, self).__init__()
         self.ui = Ui_MainWindow()
@@ -25,11 +26,7 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
         self.ui.input_stock_code.setText('000001')
-        self.ui.calendarWidget.setSelectedDate(QDate.currentDate())
 
-        self.ui.input_from_date.setClearButtonEnabled(True)
-        self.ui.input_to_date.setClearButtonEnabled(True)
-        self.ui.input_from_date.setFocus()
 
     def check_input_stock_code(self):
         self.ui.input_stock_code.selectAll()
@@ -52,7 +49,7 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def calendar_dao(self):
         if self.check_input_stock_code():
-            date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
+            date = self.ui.input_from_date.text()
             value = QueryDatabase.get_k_value(self.ui.input_stock_code.text(), date)
             self.ui.output_close_price.setText(str(value))
 
@@ -61,7 +58,6 @@ class ApoloWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
             data, index = QueryDatabase.get_k_value_period(self.ui.input_stock_code.text(),
                                               self.ui.input_from_date.text(), self.ui.input_to_date.text())
-            # self.ui.output_close_price.setText(str(value))
             Draw.draw_k_data_period(data, index)
 
     """Statement"""

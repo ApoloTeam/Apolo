@@ -9,8 +9,12 @@ class Draw:
 
     @classmethod
     def draw_k_data_period(self, data, index):
-        plot_k_data = pd.Series(data, index)
-        plot_k_data.plot(kind='line')
+        plt.plot(index, data)
+        plt.xlabel("Day")
+        plt.ylabel("Price")
+        plt.xticks(index)
+        # plot_k_data = pd.Series(data, index)
+        # plot_k_data.plot(kind='line')
         plt.show()
 
 

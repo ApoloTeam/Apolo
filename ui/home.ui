@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>401</width>
+      <width>671</width>
       <height>91</height>
      </rect>
     </property>
@@ -67,7 +67,7 @@
       <rect>
        <x>10</x>
        <y>50</y>
-       <width>131</width>
+       <width>111</width>
        <height>31</height>
       </rect>
      </property>
@@ -78,7 +78,7 @@
     <widget class="QRadioButton" name="rdb_bs">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>130</x>
        <y>60</y>
        <width>101</width>
        <height>16</height>
@@ -91,7 +91,7 @@
     <widget class="QRadioButton" name="rdb_pl">
      <property name="geometry">
       <rect>
-       <x>260</x>
+       <x>240</x>
        <y>60</y>
        <width>89</width>
        <height>16</height>
@@ -113,7 +113,7 @@
     <widget class="QRadioButton" name="rdb_cash">
      <property name="geometry">
       <rect>
-       <x>310</x>
+       <x>290</x>
        <y>60</y>
        <width>89</width>
        <height>16</height>
@@ -126,7 +126,7 @@
     <widget class="QPushButton" name="btn_draw">
      <property name="geometry">
       <rect>
-       <x>320</x>
+       <x>610</x>
        <y>20</y>
        <width>41</width>
        <height>23</height>
@@ -134,6 +134,45 @@
      </property>
      <property name="text">
       <string>Draw</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_close_price">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>60</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close Price:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="output_close_price">
+     <property name="geometry">
+      <rect>
+       <x>500</x>
+       <y>60</y>
+       <width>54</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.0</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_search_k_data">
+     <property name="geometry">
+      <rect>
+       <x>570</x>
+       <y>60</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Search</string>
      </property>
     </widget>
    </widget>
@@ -234,73 +273,36 @@
      </property>
     </widget>
    </widget>
-   <widget class="QCalendarWidget" name="calendarWidget">
+   <widget class="QDateTimeEdit" name="input_from_date">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>10</y>
-      <width>248</width>
-      <height>197</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_search_k_data">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>220</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Search</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="output_close_price">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>220</y>
-      <width>54</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>0.0</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lbl_close_price">
-    <property name="geometry">
-     <rect>
-      <x>423</x>
-      <y>220</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Close Price:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="input_from_date">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>250</y>
+      <x>420</x>
+      <y>30</y>
       <width>91</width>
-      <height>20</height>
+      <height>22</height>
      </rect>
     </property>
+    <property name="displayFormat">
+     <string>yyyy-MM-dd</string>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="input_to_date">
+   <widget class="QDateTimeEdit" name="input_to_date">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>250</y>
+      <x>520</x>
+      <y>30</y>
       <width>91</width>
-      <height>20</height>
+      <height>22</height>
      </rect>
+    </property>
+    <property name="displayFormat">
+     <string>yyyy-MM-dd</string>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
