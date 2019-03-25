@@ -6,11 +6,10 @@ import datetime as dt
 import tushare as ts
 from sqlalchemy.exc import IntegrityError
 from modules.connect_database import ConnectDatabase
-pro = ts.pro_api()
+ts_new = ts.pro_api('0186b390ef6be64b54a89f4a23b31d97c44eac0a3acad8b40940c302')
+
 connection = ConnectDatabase()
 conn, cur = connection.connect_server()
-# ts.set_token('0186b390ef6be64b54a89f4a23b31d97c44eac0a3acad8b40940c302')
-# print('version: ' + ts.__version__)
 now = dt.datetime.now()
 DATA_DIR = 'E:\\Apolo\\raw_data'
 STOCK_BASICS_DIR = os.path.join(DATA_DIR, 'stock_basics')
@@ -31,7 +30,7 @@ def get_stock_basics():
     try:
         if os.path.exists(STOCK_BASICS_DIR) is False:
             os.makedirs(STOCK_BASICS_DIR)
-        df = pro.get_stock_basics()
+        df = ts.get_stock_basics()
         df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
                                                    mm=str(now.strftime('%m')),
                                                    dd=str(now.strftime('%d')))
@@ -47,7 +46,7 @@ def get_stock_basics():
 
 
 # 获取某年某季度的业绩报表数据
-'''
+
 def get_report_data(year, quarter):
     # todo: to check if the result exist, don't download.
     try:
@@ -63,16 +62,16 @@ def get_report_data(year, quarter):
         print(error)
     else:
         print('\nSuccess: %s year %s quarter report data report downloaded.' % (str(year), str(quarter)))
-'''
-'''
+
+
 def get_report_data_range(from_year, to_year):
     for y in np.arange(from_year, to_year+1):
         for q in np.arange(1, 4+1):
             get_report_data(y, q)
-'''
+
 
 # 获取某年某季度的盈利能力数据
-'''
+
 def get_profit_data(year, quarter):
     try:
         if os.path.exists(PROFIT_DATA_DIR) is False:
@@ -86,16 +85,16 @@ def get_profit_data(year, quarter):
         print(error)
     else:
         print('\nSuccess: %s year %s quarter profit data report downloaded.' % (str(year), str(quarter)))
-'''
-'''
+
+
 def get_profit_data_range(from_year, to_year):
     for y in np.arange(from_year, to_year+1):
         for q in np.arange(1, 4+1):
             get_profit_data(y, q)
-'''
+
 
 # 按行业分类股票代号列表
-'''
+
 def get_industry_classified():
     try:
         if os.path.exists(INDUSTRY_CLASSIFIED_DIR) is False:
@@ -113,8 +112,7 @@ def get_industry_classified():
         print(error)
     else:
         print('Success: Stock basics - industry classified downloaded.')
-'''
-'''
+
 def get_dividend_plan(year, top=3000):
     try:
         if os.path.exists(DIVIDEND_PLAN_DIR) is False:
@@ -130,17 +128,16 @@ def get_dividend_plan(year, top=3000):
         print(error)
     else:
         print('Success: {yyyy} year dividend_plan downloaded.'.format(yyyy=year))
-'''
+
 
 # ----- SSE top 50 -----
-'''
 def get_sse50(year, quarter):
     if os.path.exists('./data/sse50') is False:
         os.makedirs('./data/sse50')
     df = ts.get_sz50s()
     df.to_csv('./data/sse50/sse50_%s_%s.csv' % (str(year), str(quarter)))
     print('\n%s year %s quarter sse50 downloaded.' % (str(year), str(quarter)))
-'''
+
 
 def filter_stock_list_sse50(date):
     sse50 = pd.read_csv('./data/sse50/2017_2.csv', encoding='gbk')
@@ -164,7 +161,6 @@ def stock_master(date):
 
 
 # ----- Below function use code to search -----
-'''
 def query_stock_code(stock_code, to_year=2017, total_year=5):
     cur.execute("select count(code) from stock_code where code=%s", stock_code)
     exist = cur.fetchall()
@@ -176,11 +172,11 @@ def query_stock_code(stock_code, to_year=2017, total_year=5):
         get_history_data(str(stock_code).zfill(6), to_year, total_year)
 
     conn.commit()
-'''
+
 
 # todo: update data
 
-'''
+
 def query_industry(industry, to_year=2017, total_year=5):
     cur.execute("select * from industry_classified where c_name=\'{i}\'".format(i=industry))
     list_stock_codes = cur.fetchall()
@@ -188,7 +184,7 @@ def query_industry(industry, to_year=2017, total_year=5):
         print(code[0])
         query_stock_code(code[0], to_year, total_year)
     print('Done')
-'''
+
 
 def query_stock_basics(stock_code, field):
     cur.execute("select {f} from stock_basics where code={code}".format(f=field, code=stock_code))
@@ -210,7 +206,7 @@ def get_stock_info(stock_code):
 
 # todo: if total of year exceed 5 years, data
 
-'''
+
 def get_history_data(code, to_year, total_year):
     engine = connection.create_db_engine()
     path = os.path.join(HISTORY_DATA_DIR, code)
@@ -258,13 +254,11 @@ def get_history_data(code, to_year, total_year):
         print(error)
     except:
         print("Error")
-'''
+
 
 if __name__ == '__main__':
-    # query_industry('传媒娱乐')
+    query_industry('传媒娱乐')
     # df = ts.get_k_data("000156", autype='qfq', start='2012-01-01', end='2012-03-31')
     # print(df)
     # conn.close()
     # get_stock_info('000002')
-    df = pro.trade_cal(exchange='', start_date='20180901', end_date='20181001',
-                       fields='exchange,cal_date,is_open,pretrade_date', is_open='0')
