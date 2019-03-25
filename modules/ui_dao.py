@@ -56,9 +56,11 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
     def calendar_period_dao(self):
         if self.check_input_stock_code():
             # date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
+            from_date = self.ui.input_from_date.text()
+            to_date = self.ui.input_to_date.text()
             data, index = QueryDatabase.get_k_value_period(self.ui.input_stock_code.text(),
-                                              self.ui.input_from_date.text(), self.ui.input_to_date.text())
-            Draw.draw_k_data_period(data, index)
+                                             from_date , to_date)
+            Draw.draw_k_data_period(from_date, to_date, data, index)
 
     """Statement"""
     def update_statement_dao(self):
