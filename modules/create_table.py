@@ -570,15 +570,16 @@ class CreateTable:
 
     @classmethod
     def create_tables(cls):
-        # cls.create_table_stock_basics()
-        # cls.create_table_report_data()
-        # cls.create_table_profit_data()
+        cls.create_table_stock_basics()
+        cls.create_table_report_data()
+        cls.create_table_profit_data()
         cls.create_table_history_data()
-        # cls.create_industry_classified()
-        # cls.create_stock_code()
-        # cls.create_table_con_bs_season()
-        # cls.create_table_con_cash_season()
-        # cls.create_table_con_pl_season()
+        cls.create_industry_classified()
+        cls.create_stock_code()
+        cls.create_table_con_bs_season()
+        cls.create_table_con_cash_season()
+        cls.create_table_con_pl_season()
+        cls.create_table_k_data()
 
 if __name__ == "__main__":
     CreateTable.create_tables()
