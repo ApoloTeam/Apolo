@@ -25,7 +25,7 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
         self.ui.btn_update_zz500.clicked.connect(self.update_zz500_dao)
 
         self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
-        self.ui.input_stock_code.setText('000001')
+        # self.ui.input_stock_code.setText('000001')
 
 
     def check_input_stock_code(self):
