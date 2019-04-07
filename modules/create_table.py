@@ -45,7 +45,7 @@ class CreateTable:
                                    Column('createDate', DECIMAL(20, 8))
                                    )
         table_stock_basics.create(cls.engine, checkfirst=True)
-        print('Create stock basics, ok!')
+        print('Create stock basics, done!')
         return table_stock_basics
 
     # @classmethod
@@ -97,7 +97,7 @@ class CreateTable:
                              extend_existing=True
                              )
         table_k_data.create(cls.engine, checkfirst=True)  # create table
-        print("Create k_data table, ok!")
+        print("Create k_data, done!")
         return table_k_data
 
     # @staticmethod
@@ -144,7 +144,7 @@ class CreateTable:
                                    PrimaryKeyConstraint('code', 'date')
                                    )
         table_history_data.create(cls.engine, checkfirst=True)  # create table
-        print("Create history_data table, ok!")
+        print("Create history_data, done!")
         return table_history_data
 
     # 上证50
@@ -155,7 +155,7 @@ class CreateTable:
                                 Column('name', String(100))
                                 )
         table_sz50_list.create(cls.engine, checkfirst=True)  # create table
-        # print("Create sz50_list table, ok!")
+        print("Create sz50_list, done!")
         return table_sz50_list
 
     # 中证500
@@ -166,7 +166,7 @@ class CreateTable:
                                  Column('name', String(100))
                                  )
         table_zz500_list.create(cls.engine, checkfirst=True)  # create table
-        print("Create zz500_list table, ok!")
+        print("Create zz500_list, done!")
         return table_zz500_list
 
     # 沪深300
@@ -195,7 +195,7 @@ class CreateTable:
                                     PrimaryKeyConstraint('code', 'report_date')
                                     )
         table_dividend_data.create(cls.engine, checkfirst=True)  # create table
-        print("Create dividend_data table, ok!")
+        print("Create dividend_data, done!")
         return table_dividend_data
 
     # def create_table_dividend_plan():
@@ -331,7 +331,7 @@ class CreateTable:
                                     Column('code', String(20), primary_key=True)
                                       )
         table_con_bs_season.create(cls.engine, checkfirst=True)  # create table
-        print("Create con_bs_season table, ok!")
+        print("Create con_bs_season, done!")
         return table_con_bs_season
 
     # 合并利润表
@@ -388,7 +388,7 @@ class CreateTable:
                                     Column('code', String(20), primary_key=True)
                                     )
         table_con_pl_season.create(cls.engine, checkfirst=True)  # create table
-        print("Create con_pl_season table, ok!")
+        print("Create con_pl_season, done!")
         return table_con_pl_season
 
     # 合并现金流量表
@@ -489,7 +489,7 @@ class CreateTable:
                                         Column('code', String(20), primary_key=True)
                                         )
         table_con_cash_season.create(cls.engine, checkfirst=True)  # create table
-        print("Create con_cash_season table, ok!")
+        print("Create con_cash_season, done!")
         return table_con_cash_season
 
     @classmethod
@@ -510,7 +510,7 @@ class CreateTable:
                         distrib varchar(50),\
                         report_date varchar(10),\
                         report_y_q decimal(6,0) unsigned)")
-            print('report_data table created.')
+            print('Create report_data, done!')
         except pymysql.Warning as w:
             print("Warning:%s" % str(w))
         except pymysql.Error as e:
@@ -532,7 +532,7 @@ class CreateTable:
                         business_income decimal(15,4),\
                         bips decimal(8,4),\
                         report_y_q decimal(6,0) unsigned)")
-            print('profit_data table created.')
+            print('Create profit_data, done!')
         except pymysql.Warning as w:
             print("Warning:%s" % str(w))
         except pymysql.Error as e:
@@ -547,7 +547,7 @@ class CreateTable:
             cls.cur.execute("create table industry_classified(code decimal(7,0) unsigned, name varchar(20),\
                         c_name varchar(20),\
                         createDate varchar(20))")
-            print('industry_classified table created.')
+            print('Create industry_classified, done!')
         except pymysql.Warning as w:
             print("Warning:%s" % str(w))
         except pymysql.Error as e:
@@ -560,13 +560,33 @@ class CreateTable:
         try:
             # cur.execute("drop table if exists industry_classified")
             cls.cur.execute(TBL_STOCK_CODE)
-            print('stock_code table created.')
+            print('Create stock_code, done!')
         except pymysql.Warning as w:
             print("Warning:%s" % str(w))
         except pymysql.Error as e:
             print("Error %d:%s" % (e.args[0], e.args[1]))
 
         cls.conn.commit()
+
+    @classmethod
+    def create_fund_holdings(cls):
+        table_fund_holdings = Table('fund_holdings', cls.metadata,
+                                    Column('code', String(20)),
+                                    Column('name', String(100)),
+                                    Column('date', Date()),
+                                    Column('nums', DECIMAL(5, 0)),
+                                    Column('nlast', DECIMAL(5, 0)),
+                                    Column('count', DECIMAL(10, 3)),
+                                    Column('clast', DECIMAL(10, 3)),
+                                    Column('amount', DECIMAL(10, 3)),
+                                    Column('ratio', DECIMAL(10, 3)),
+                                    PrimaryKeyConstraint('code', 'date')
+        )
+
+        table_fund_holdings.create(cls.engine, checkfirst=True)
+        print('Create fund_holdings, done!')
+        return table_fund_holdings
+
 
     @classmethod
     def create_tables(cls):
@@ -580,6 +600,7 @@ class CreateTable:
         cls.create_table_con_cash_season()
         cls.create_table_con_pl_season()
         cls.create_table_k_data()
+        cls.create_fund_holdings()
 
 if __name__ == "__main__":
     CreateTable.create_tables()

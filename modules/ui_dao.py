@@ -7,6 +7,7 @@ from modules.admin_database import AdminDatabase
 from modules.query_database import QueryDatabase
 from modules.draw_charts import Draw
 from modules.get_data_from_Tushare import get_stock_info
+from modules.analysis_data import Ratios
 
 
 class ApoloWindow(QMainWindow, Ui_MainWindow):
@@ -24,9 +25,12 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
         self.ui.btn_update_hs300.clicked.connect(self.update_hs300_dao)
         self.ui.btn_update_zz500.clicked.connect(self.update_zz500_dao)
 
-        self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
+        self.ui.btn_update_divi_data.clicked.connect(self.analyst)
         # self.ui.input_stock_code.setText('000001')
+        self.analyst = Ratios
 
+    def analyst(self):
+        self.analyst().plot_cash_flow()
 
     def check_input_stock_code(self):
         self.ui.input_stock_code.selectAll()

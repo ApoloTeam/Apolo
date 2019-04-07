@@ -255,6 +255,22 @@ def get_history_data(code, to_year, total_year):
     except:
         print("Error")
 
+# ----- 获取每个季度基金持有上市公司股票的数据 -----
+def get_fund_holdings():
+    try:
+        if os.path.exists(DIVIDEND_PLAN_DIR) is False:
+            os.makedirs(DIVIDEND_PLAN_DIR)
+        df = ts.profit_data(year, top)
+        df.to_csv(os.path.join(DIVIDEND_PLAN_DIR, '{yyyy}.csv'.format(yyyy=year)))
+        # df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
+        #                                            mm=str(now.strftime('%m')),
+        #                                            dd=str(now.strftime('%d')))
+        engine = connection.create_db_engine()
+        df.to_sql('dividend_plan', engine, if_exists='append', index=False)
+    except IntegrityError as error:
+        print(error)
+    else:
+        print('Success: {yyyy} year dividend_plan downloaded.'.format(yyyy=year))
 
 if __name__ == '__main__':
     query_industry('传媒娱乐')
