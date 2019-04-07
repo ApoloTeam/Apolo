@@ -1,15 +1,15 @@
-import tushare as ts
+# import tushare as ts
 import os
 import pandas as pd
 import numpy as np
 import datetime as dt
+import tushare as ts
 from sqlalchemy.exc import IntegrityError
 from modules.connect_database import ConnectDatabase
+ts_new = ts.pro_api('0186b390ef6be64b54a89f4a23b31d97c44eac0a3acad8b40940c302')
 
 connection = ConnectDatabase()
 conn, cur = connection.connect_server()
-
-print('version: ' + ts.__version__)
 now = dt.datetime.now()
 DATA_DIR = 'E:\\Apolo\\raw_data'
 STOCK_BASICS_DIR = os.path.join(DATA_DIR, 'stock_basics')
@@ -22,6 +22,7 @@ DIVIDEND_PLAN_DIR = os.path.join(DATA_DIR, 'dividend_plan')
 
 
 # 获取沪深上市公司基本情况
+
 def get_stock_basics():
     # if folder doest exists, then create.
     # todo: check if the data is the latest, no need to insert, otherwise insert or update.
@@ -45,6 +46,7 @@ def get_stock_basics():
 
 
 # 获取某年某季度的业绩报表数据
+
 def get_report_data(year, quarter):
     # todo: to check if the result exist, don't download.
     try:
@@ -69,6 +71,7 @@ def get_report_data_range(from_year, to_year):
 
 
 # 获取某年某季度的盈利能力数据
+
 def get_profit_data(year, quarter):
     try:
         if os.path.exists(PROFIT_DATA_DIR) is False:
@@ -91,6 +94,7 @@ def get_profit_data_range(from_year, to_year):
 
 
 # 按行业分类股票代号列表
+
 def get_industry_classified():
     try:
         if os.path.exists(INDUSTRY_CLASSIFIED_DIR) is False:
@@ -108,7 +112,6 @@ def get_industry_classified():
         print(error)
     else:
         print('Success: Stock basics - industry classified downloaded.')
-
 
 def get_dividend_plan(year, top=3000):
     try:
@@ -252,10 +255,26 @@ def get_history_data(code, to_year, total_year):
     except:
         print("Error")
 
+# ----- 获取每个季度基金持有上市公司股票的数据 -----
+def get_fund_holdings():
+    try:
+        if os.path.exists(DIVIDEND_PLAN_DIR) is False:
+            os.makedirs(DIVIDEND_PLAN_DIR)
+        df = ts.profit_data(year, top)
+        df.to_csv(os.path.join(DIVIDEND_PLAN_DIR, '{yyyy}.csv'.format(yyyy=year)))
+        # df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
+        #                                            mm=str(now.strftime('%m')),
+        #                                            dd=str(now.strftime('%d')))
+        engine = connection.create_db_engine()
+        df.to_sql('dividend_plan', engine, if_exists='append', index=False)
+    except IntegrityError as error:
+        print(error)
+    else:
+        print('Success: {yyyy} year dividend_plan downloaded.'.format(yyyy=year))
 
 if __name__ == '__main__':
-    # query_industry('传媒娱乐')
+    query_industry('传媒娱乐')
     # df = ts.get_k_data("000156", autype='qfq', start='2012-01-01', end='2012-03-31')
     # print(df)
     # conn.close()
-    get_dividend_plan(2016)
+    # get_stock_info('000002')

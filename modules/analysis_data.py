@@ -42,7 +42,7 @@ class Ratios:
     def display_pivot_table(self, dataset, column):
         result = pd.pivot_table(dataset, index=['year', 'quarter'], values=column)
         result = pd.DataFrame(result)
-        result = self.get_growh_rate(result)
+        result = self.get_growth_rate(result)
         return result
 
     def get_ann_value(self, dataset):
@@ -146,6 +146,26 @@ class Ratios:
         ann_equity = self.display_pivot_table(result, '所有者权益（或股东权益）合计')
         print(ann_equity)
 
+
+    def net_profit(self, path):
+        result = self.get_field_data(path, '五、净利润')
+        result = self.display_pivot_table(result, '五、净利润')
+        print(result)
+        # result.plot(kind='line',title=600030, use_index=True, label=range(10,17,1), grid=True, xticks=range(0,7,1))
+        # plt.legend('l', loc='upper left')
+        # plt.show()
+
+    def roe(self):
+        prf_ratio = pd.DataFrame(pd.read_csv('./data/000338/lrb_2014_2016.csv', encoding='gbk'))
+        prf_ratio = prf_ratio[['Unnamed: 0','Unnamed: 1','五、净利润']]
+        ttl_equity = pd.DataFrame(pd.read_csv('./data/000338/fzb_2014_2016.csv', encoding='gbk'))
+        ttl_equity = ttl_equity[['Unnamed: 0','Unnamed: 1','所有者权益（或股东权益）合计']]
+        combined_result = pd.merge(prf_ratio, ttl_equity, on=['Unnamed: 0','Unnamed: 1'], how='left')
+        combined_result.insert(4, 'roe', combined_result.loc[:,('五、净利润')] / combined_result.loc[:, ('所有者权益（或股东权益）合计')])
+        # combined_result = pd.DataFrame(combined_result).drop_duplicates('roe')
+        print(round(combined_result[['roe']].pct_change()*100, 2))
+        print(combined_result)
+
     def net_cash_flow_by_oper_activities(self, path, column_name = '经营活动产生的现金流量净额'):
         result = self.get_field_data(path, column_name)
         result.rename(columns={column_name: 'oper'}, inplace=True)
@@ -190,26 +210,6 @@ class Ratios:
         merge_3.insert(9, 'ttl', merge_3.loc[:,('oper')] + merge_3.loc[:, ('inv')] + merge_3.loc[:, ('fund')])
         return merge_3
 
-    def net_profit(self, path):
-        result = self.get_field_data(path, '五、净利润')
-        result = self.display_pivot_table(result, '五、净利润')
-        print(result)
-        # result.plot(kind='line',title=600030, use_index=True, label=range(10,17,1), grid=True, xticks=range(0,7,1))
-        # plt.legend('l', loc='upper left')
-        # plt.show()
-
-    def roe(self):
-        prf_ratio = pd.DataFrame(pd.read_csv('./data/000338/lrb_2014_2016.csv', encoding='gbk'))
-        prf_ratio = prf_ratio[['Unnamed: 0','Unnamed: 1','五、净利润']]
-        ttl_equity = pd.DataFrame(pd.read_csv('./data/000338/fzb_2014_2016.csv', encoding='gbk'))
-        ttl_equity = ttl_equity[['Unnamed: 0','Unnamed: 1','所有者权益（或股东权益）合计']]
-        combined_result = pd.merge(prf_ratio, ttl_equity, on=['Unnamed: 0','Unnamed: 1'], how='left')
-        combined_result.insert(4, 'roe', combined_result.loc[:,('五、净利润')] / combined_result.loc[:, ('所有者权益（或股东权益）合计')])
-        # combined_result = pd.DataFrame(combined_result).drop_duplicates('roe')
-        print(round(combined_result[['roe']].pct_change()*100, 2))
-        print(combined_result)
-
-
     def plot_cash_flow(self):
         plt.style.use(u'ggplot')
         # xmajorLocator   = MultipleLocator(1) #将x主刻度标签设置为20的倍数
@@ -235,31 +235,28 @@ class Ratios:
         fund = pd.Series(data=fund, index=year_index)
         ttl = pd.Series(data=ttl, index=year_index)
         cash_flow = pd.Series(data=cash_flow, index=year_index)
-        # plt.bar(oper.index, oper, label='oper')
-        # plt.bar(inv.index, inv, bottom=oper, label='inv')
-        # plt.bar(fund.index, fund, bottom=inv, label='fund')
         fig = plt.figure(figsize=(7,7))  # 指定matplotlib输出图片的尺寸
 
         ax_oper = fig.add_subplot(321)  #row, column,location
+        ax_ttl = fig.add_subplot(322)
+        ax_inv = fig.add_subplot(323)
+        ax_cash_flow = fig.add_subplot(324)
+        ax_fund = fig.add_subplot(325)
         ax_oper.xaxis.set_major_locator(xmajorLocator)
         ax_oper.xaxis.set_major_formatter(xmajorFormatter)
         # ax_oper.xaxis.set_minor_locator(xminorLocator)
         ax_oper.xaxis.grid(True, which='major') #x坐标轴的网格使用主刻度
 
-        ax_inv = fig.add_subplot(323)
-        ax_fund = fig.add_subplot(325)
-        ax_ttl = fig.add_subplot(322)
-        # ax_cash_flow = fig.add_subplot(313)
-        ax_oper.set_title('oper')
+        ax_oper.set_title('operate')
         ax_oper.plot(oper.index, oper, '--',label='oper', color='g',alpha=0.5)
-        ax_inv.set_title('inv')
+        ax_inv.set_title('invest')
         ax_inv.bar(inv.index, inv,label='inv', color='r', alpha=0.5, width=0.35)
-        ax_fund.set_title('fund')
+        ax_fund.set_title('fundraising')
         ax_fund.bar(fund.index, fund,label='fund', color='b', alpha=0.5, width=0.35)
-        ax_ttl.set_title('ttl')
+        ax_ttl.set_title('total')
         ax_ttl.bar(ttl.index, ttl,label='ttl', color='b', alpha=0.5, width=0.35)
-        # ax_cash_flow.set_title('cash_flow')
-        # rects_cash_flow = ax_cash_flow.bar(cash_flow.index, cash_flow,label='ttl', color='y', alpha=0.5, width=0.35)
+        ax_cash_flow.set_title('cash_flow')
+        ax_cash_flow.bar(cash_flow.index, cash_flow,label='ttl', color='y', alpha=0.5, width=0.35)
         # plt.legend()
         plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, hspace=0.5, wspace=0.5)
 

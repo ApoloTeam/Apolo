@@ -7,6 +7,7 @@ from modules.admin_database import AdminDatabase
 from modules.query_database import QueryDatabase
 from modules.draw_charts import Draw
 from modules.get_data_from_Tushare import get_stock_info
+from modules.analysis_data import Ratios
 
 
 class ApoloWindow(QMainWindow, Ui_MainWindow):
@@ -24,9 +25,12 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
         self.ui.btn_update_hs300.clicked.connect(self.update_hs300_dao)
         self.ui.btn_update_zz500.clicked.connect(self.update_zz500_dao)
 
-        self.ui.btn_update_divi_data.clicked.connect(self.update_dividend_data_dao)
-        self.ui.input_stock_code.setText('000001')
+        self.ui.btn_update_divi_data.clicked.connect(self.analyst)
+        # self.ui.input_stock_code.setText('000001')
+        self.analyst = Ratios
 
+    def analyst(self):
+        self.analyst().plot_cash_flow()
 
     def check_input_stock_code(self):
         self.ui.input_stock_code.selectAll()
@@ -56,9 +60,11 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
     def calendar_period_dao(self):
         if self.check_input_stock_code():
             # date = self.ui.calendarWidget.selectedDate().toString(Qt.ISODate) #.toPyDate()
+            from_date = self.ui.input_from_date.text()
+            to_date = self.ui.input_to_date.text()
             data, index = QueryDatabase.get_k_value_period(self.ui.input_stock_code.text(),
-                                              self.ui.input_from_date.text(), self.ui.input_to_date.text())
-            Draw.draw_k_data_period(data, index)
+                                             from_date , to_date)
+            Draw.draw_k_data_period(from_date, to_date, data, index)
 
     """Statement"""
     def update_statement_dao(self):
@@ -92,9 +98,10 @@ class ApoloWindow(QMainWindow, Ui_MainWindow):
     def update_zz500_dao(self):
         self.ui.textEdit.append('Disabled')
         print("Disabled")
-
-    """For All Stock"""
+    #
+    # """For All Stock"""
     def update_dividend_data_dao(self):
         result = AdminDatabase.update_db_dividend_data()
         self.ui.textEdit.append(str(result))
         print(result)
+#

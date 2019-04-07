@@ -68,14 +68,47 @@ class QueryDatabase:
         for value in values:
             arr_values.append(float(value[0]))
 
+        # TODO: public holiday
         from_day = dt.datetime.strptime(start_date, '%Y-%m-%d').day
         to_day = dt.datetime.strptime(end_date, '%Y-%m-%d').day
         for day in range(int(from_day), int(to_day)+1):
-            arr_index.append(day)
+            delta_day = day - from_day
+            current_date = dt.datetime.strptime(start_date, '%Y-%m-%d')+dt.timedelta(days=delta_day)
+            if current_date.weekday() not in (5, 6):
+                # print(str(current_date) + ' not weekend')
+                arr_index.append(day)
         print(arr_index)
         return arr_values, arr_index
 
 
 if __name__ == "__main__":
-    print(QueryDatabase.get_k_value_period("000001", "2018-01-22", "2018-01-25"))
+    print(QueryDatabase.get_k_value_period("000001", "2018-06-01", "2018-06-16"))
 #     print(QueryDatabase.get_k_value("000001", "1991-04-06"))
+
+
+# import json
+# import urllib2
+#
+# date = "20170530"
+# server_url = "http://www.easybots.cn/api/holiday.php?d="
+#
+# vop_url_request = urllib2.Request(server_url + date)
+# vop_response = urllib2.urlopen(vop_url_request)
+#
+# vop_data = json.loads(vop_response.read())
+#
+# print
+# vop_data
+#
+# if vop_data[date] == '0':
+#     print
+#     "this day is weekday"
+# elif vop_data[date] == '1':
+#     print
+#     'This day is weekend'
+# elif vop_data[date] == '2':
+#     print
+#     'This day is holiday'
+# else:
+#     print
+#     'Error'

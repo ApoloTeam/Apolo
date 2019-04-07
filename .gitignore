@@ -7,3 +7,7 @@ docs/_build
 venv
 dist
 build
+*.csv
+/.idea/
+/.idea/*.xml
+*.xml

@@ -460,4 +460,4 @@ if __name__ == '__main__':
     # AdminDatabase.update_db_consolidated_statement_data('002839','Cash')
     # AdminDatabase.update_data_sz50('2011-01-03')
     # AdminDatabase.update_db_history_data('000004')
-    AdminDatabase.update_db_dividend_data()
+    AdminDatabase.update_db_k_data('000002')
