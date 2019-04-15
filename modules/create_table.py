@@ -579,8 +579,8 @@ class CreateTable:
                                     Column('count', DECIMAL(10, 3)),
                                     Column('clast', DECIMAL(10, 3)),
                                     Column('amount', DECIMAL(10, 3)),
-                                    Column('ratio', DECIMAL(10, 3)),
-                                    PrimaryKeyConstraint('code', 'date')
+                                    Column('ratio', DECIMAL(10, 3))#,
+                                    # PrimaryKeyConstraint('code', 'date')
         )
 
         table_fund_holdings.create(cls.engine, checkfirst=True)
@@ -603,4 +603,4 @@ class CreateTable:
         cls.create_fund_holdings()
 
 if __name__ == "__main__":
-    CreateTable.create_tables()
+    CreateTable.create_fund_holdings()

@@ -1,4 +1,3 @@
-# import tushare as ts
 import os
 import pandas as pd
 import numpy as np
@@ -19,6 +18,7 @@ INDUSTRY_CLASSIFIED_DIR = os.path.join(DATA_DIR, 'industry_classified')
 HISTORY_DATA_DIR = os.path.join(DATA_DIR, 'history_data')
 STOCK_ID_DIR = os.path.join(DATA_DIR, 'stock_id')
 DIVIDEND_PLAN_DIR = os.path.join(DATA_DIR, 'dividend_plan')
+FUND_HOLDINGS_DIR = os.path.join(DATA_DIR, 'fund_holdings')
 
 
 # 获取沪深上市公司基本情况
@@ -93,6 +93,13 @@ def get_profit_data_range(from_year, to_year):
             get_profit_data(y, q)
 
 
+def get_data_by_year(func):
+    def wrap(from_year):
+        for y in np.arange(from_year, now.year + 1):
+            for q in np.arange(1, 4 + 1):
+                func(y, q)
+    return wrap
+
 # 按行业分类股票代号列表
 
 def get_industry_classified():
@@ -155,8 +162,6 @@ def stock_master(date):
     sm = pd.DataFrame(pd.read_csv('./data/stock_basics/20170525.csv', encoding='gbk'))
     sm = sm[(sm['timeToMarket'] < date)]
     sm = sm.sort_values(by=['code'], ascending=True)
-    # print(sm.head(10))
-    # print(type(sm['code']))
     print(sm['code'])
 
 
@@ -256,24 +261,22 @@ def get_history_data(code, to_year, total_year):
         print("Error")
 
 # ----- 获取每个季度基金持有上市公司股票的数据 -----
-def get_fund_holdings():
+def get_fund_holdings(year, quarter):
     try:
-        if os.path.exists(DIVIDEND_PLAN_DIR) is False:
-            os.makedirs(DIVIDEND_PLAN_DIR)
-        df = ts.profit_data(year, top)
-        df.to_csv(os.path.join(DIVIDEND_PLAN_DIR, '{yyyy}.csv'.format(yyyy=year)))
-        # df['createDate'] = '{yyyy}{mm}{dd}'.format(yyyy=str(now.year),
-        #                                            mm=str(now.strftime('%m')),
-        #                                            dd=str(now.strftime('%d')))
+        if os.path.exists(FUND_HOLDINGS_DIR) is False:
+            os.makedirs(FUND_HOLDINGS_DIR)
+        df = ts.fund_holdings(year, quarter)
+        df.to_csv(os.path.join(DIVIDEND_PLAN_DIR, '{yyyy}_{q}.csv'.format(yyyy=year, q=quarter)))
         engine = connection.create_db_engine()
-        df.to_sql('dividend_plan', engine, if_exists='append', index=False)
+        df.to_sql('fund_holdings', engine, if_exists='append', index=False)
     except IntegrityError as error:
         print(error)
     else:
-        print('Success: {yyyy} year dividend_plan downloaded.'.format(yyyy=year))
+        print('Success: {yyyy} year {q} quarter fund_holdings downloaded.'.format(yyyy=year, q=quarter))
+
 
 if __name__ == '__main__':
-    query_industry('传媒娱乐')
+    get_fund_holdings(2018,3)
     # df = ts.get_k_data("000156", autype='qfq', start='2012-01-01', end='2012-03-31')
     # print(df)
     # conn.close()

@@ -28,7 +28,7 @@ class KDATA(object):
         self.code = code
 
 
-class QueryDatabase:
+class QueryDatabase(object):
     connection = ConnectDatabase()
     engine = connection.create_db_engine()
     con, cur = connection.connect_server()
